@@ -1,24 +1,41 @@
-# Compiled class file
-*.class
+# --- Maven ---
+target/
+!.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
 
-# Log file
+# --- IntelliJ IDEA ---
+.idea
+*.iws
+*.iml
+*.ipr
+out/
+
+# --- Mac OS (Śmieci systemowe) ---
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# --- Spring Boot & Env ---
+.env
+help.md
+.classpath
+.project
+.settings/
+/bin/
+
+# --- Logs ---
+logs/
 *.log
 
-# BlueJ files
-*.ctxt
-
-# Mobile Tools for Java (J2ME)
-.mtj.tmp/
-
-# Package Files #
+# --- Other ---
+*.class
 *.jar
 *.war
-*.nar
-*.ear
 *.zip
 *.tar.gz
 *.rar
-
-# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
-hs_err_pid*
-replay_pid*
+uploads/
+storage/
+media/
+tmp/

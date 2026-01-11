@@ -1,0 +1,25 @@
+spring:
+  application:
+    name: cinema-booking
+
+  datasource:
+    url: jdbc:postgresql://localhost:5433/cinema_db
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    database: POSTGRESQL
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+  thymeleaf:
+    cache: false
+
+server:
+  port: 8080
