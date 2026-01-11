@@ -1,5 +1,6 @@
 package com.cinema.booking.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -30,5 +31,6 @@ public class Screening {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "room_id", nullable = false)
     @ToString.Exclude
+    @JsonIgnore
     private Room room;
 }

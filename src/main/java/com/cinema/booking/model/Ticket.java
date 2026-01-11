@@ -2,7 +2,7 @@ package com.cinema.booking.model;
 
 import jakarta.persistence.*;
 import lombok.*;
-
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -33,11 +33,13 @@ public class Ticket {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "screening_id", nullable = false)
     @ToString.Exclude
+    @JsonIgnore
     private Screening screening;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "seat_id", nullable = false)
     @ToString.Exclude
+    @JsonIgnore
     private Seat seat;
 
     private boolean paid;
