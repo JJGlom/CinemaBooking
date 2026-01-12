@@ -2,14 +2,17 @@ package com.cinema.booking.bootstrap;
 
 import com.cinema.booking.model.Movie;
 import com.cinema.booking.model.Room;
+import com.cinema.booking.model.Screening;
 import com.cinema.booking.model.Seat;
 import com.cinema.booking.repository.MovieRepository;
 import com.cinema.booking.repository.RoomRepository;
+import com.cinema.booking.repository.ScreeningRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,6 +22,7 @@ public class DataInitializer implements CommandLineRunner {
 
     private final RoomRepository roomRepository;
     private final MovieRepository movieRepository;
+    private final ScreeningRepository screeningRepository;
 
     @Override
     @Transactional
@@ -49,7 +53,7 @@ public class DataInitializer implements CommandLineRunner {
 
         Movie movie = Movie.builder()
                 .title("Diuna: Część druga")
-                .description("Książę Paul Atryda przyjmuje przydomek Muad'Dib...")
+                .description("Opis filmu...")
                 .genre("Sci-Fi")
                 .director("Denis Villeneuve")
                 .durationMinutes(166)
@@ -57,5 +61,13 @@ public class DataInitializer implements CommandLineRunner {
                 .build();
 
         movieRepository.save(movie);
+
+        Screening screening = Screening.builder()
+                .movie(movie)
+                .room(roomA)
+                .startTime(LocalDateTime.now().plusDays(1).withHour(18).withMinute(0))
+                .build();
+
+        screeningRepository.save(screening);
     }
 }
