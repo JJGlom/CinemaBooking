@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: layout(~{::content})}">
+<body>
+<div th:fragment="content">
+
+    <div class="row mb-5">
+        <div class="col-md-12 text-center">
+            <h2 class="mb-4" style="color: #66fcf1; text-shadow: 0 0 10px rgba(102, 252, 241, 0.5);">REPERTUAR</h2>
+            <form action="/" method="get" class="d-flex justify-content-center align-items-center gap-3">
+                <label for="date" class="form-label mb-0">WYBIERZ DATĘ:</label>
+                <input type="date" id="date" name="date" class="form-control w-auto bg-dark text-white border-info"
+                       th:value="${selectedDate}" onchange="this.form.submit()">
+            </form>
+        </div>
+    </div>
+
+    <div class="alert alert-dark border-info text-info" th:if="${screenings.empty}">
+        BRAK MISJI W TYM DNIU.
+    </div>
+
+    <div class="row row-cols-1 row-cols-md-3 g-4" th:unless="${screenings.empty}">
+        <div class="col" th:each="screening : ${screenings}">
+            <div class="card h-100 shadow-lg">
+                <div class="card-body">
+                    <h5 class="card-title text-uppercase" th:text="${screening.movieTitle()}">TYTUŁ</h5>
+                    <p class="card-text" style="color: #888;" th:text="${screening.roomName()}">SALA</p>
+                    <div class="d-flex justify-content-between align-items-center mt-4">
+                        <span class="badge border border-info text-info bg-transparent fs-6"
+                              th:text="${#temporals.format(screening.startTime(), 'HH:mm')}">
+                            18:00
+                        </span>
+                        <a th:href="@{/booking/screening/{id}(id=${screening.id})}" class="btn btn-outline-success btn-sm text-uppercase">REZERWUJ</a>
+                    </div>
+                </div>
+                <div class="card-footer border-top border-secondary text-end">
+                    <small style="color: #666;" th:text="|KONIEC: ${#temporals.format(screening.endTime(), 'HH:mm')}|">
+                        KONIEC: 20:00
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+</body>
+</html>

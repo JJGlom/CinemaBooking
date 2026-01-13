@@ -1,0 +1,182 @@
+body {
+    background-color: #0b0c10;
+    color: #c5c6c7;
+    font-family: 'Courier New', Courier, monospace;
+}
+
+.navbar {
+    background-color: #1f2833 !important;
+    border-bottom: 2px solid #66fcf1;
+}
+
+.navbar-brand {
+    color: #66fcf1 !important;
+    text-shadow: 0 0 10px #66fcf1;
+    font-weight: bold;
+    letter-spacing: 2px;
+}
+
+.card {
+    background-color: #1f2833;
+    border: 1px solid #45a29e;
+    color: #c5c6c7;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0 20px rgba(102, 252, 241, 0.2);
+    border-color: #66fcf1;
+}
+
+.card-title {
+    color: #66fcf1;
+    text-shadow: 0 0 5px rgba(102, 252, 241, 0.5);
+    font-weight: bold;
+}
+
+.card-footer {
+    background-color: #0b0c10;
+    border-top: 1px solid #45a29e;
+}
+
+.list-group-item {
+    background-color: #0b0c10;
+    color: #c5c6c7;
+    border-color: #45a29e;
+}
+
+.btn-outline-success {
+    color: #66fcf1;
+    border-color: #66fcf1;
+}
+
+.btn-outline-success:hover {
+    background-color: #66fcf1;
+    color: #0b0c10;
+    box-shadow: 0 0 15px #66fcf1;
+}
+
+.screen-container {
+    perspective: 1000px;
+    margin-bottom: 50px;
+}
+
+.screen {
+    background: linear-gradient(to bottom, rgba(102, 252, 241, 0.1), transparent);
+    border-top: 4px solid #66fcf1;
+    height: 70px;
+    width: 80%;
+    margin: 0 auto 30px auto;
+    transform: rotateX(-45deg);
+    box-shadow: 0 -10px 20px rgba(102, 252, 241, 0.3);
+    text-align: center;
+    line-height: 70px;
+    font-weight: bold;
+    color: #66fcf1;
+    letter-spacing: 10px;
+    text-shadow: 0 0 10px #66fcf1;
+}
+
+.seat-grid {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+}
+
+.seat-row-container {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.row-indicator {
+    color: #66fcf1;
+    font-weight: bold;
+    font-size: 1.2rem;
+    width: 30px;
+    text-align: center;
+    text-shadow: 0 0 5px #45a29e;
+}
+
+.seat-row {
+    display: flex;
+    gap: 8px;
+}
+
+.seat {
+    width: 35px;
+    height: 35px;
+    background-color: #2b3b4e;
+    border: 1px solid #45a29e;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    color: #888;
+    user-select: none;
+}
+
+.seat:not(.taken):hover {
+    transform: scale(1.2);
+    box-shadow: 0 0 15px #66fcf1;
+    background-color: #66fcf1;
+    color: #000;
+    font-weight: bold;
+    z-index: 100;
+}
+
+.seat.selected {
+    background-color: #ffe600;
+    border-color: #ffe600;
+    box-shadow: 0 0 20px #ffe600;
+    transform: scale(1.1);
+    color: #000;
+    font-weight: bold;
+}
+
+.seat.taken {
+    background-color: #ff003c;
+    border-color: #ff003c;
+    box-shadow: 0 0 10px #ff003c;
+    opacity: 0.6;
+    cursor: not-allowed;
+    color: #fff;
+}
+
+.seat-legend {
+    background: rgba(31, 40, 51, 0.8);
+    padding: 15px;
+    border: 1px solid #45a29e;
+}
+
+.seat-legend .seat {
+    cursor: default;
+    transform: none !important;
+}
+
+#bookBtn {
+    background-color: transparent;
+    border: 2px solid #ffe600;
+    color: #ffe600;
+    text-transform: uppercase;
+    font-weight: bold;
+    letter-spacing: 2px;
+    transition: all 0.3s;
+}
+
+#bookBtn:hover:not(:disabled) {
+    background-color: #ffe600;
+    color: #000;
+    box-shadow: 0 0 25px #ffe600;
+}
+
+#bookBtn:disabled {
+    border-color: #444;
+    color: #444;
+    box-shadow: none;
+}

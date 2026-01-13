@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: layout(~{::content})}">
+<head>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div th:fragment="content">
+    <div class="container text-center">
+        <h2 class="my-4" style="color: #66fcf1; text-transform: uppercase; letter-spacing: 3px;">Wybierz miejsca</h2>
+
+        <ul class="d-flex justify-content-center list-unstyled seat-legend mb-5 gap-4">
+            <li class="d-flex align-items-center">
+                <div class="seat me-2"></div> <small>WOLNE</small>
+            </li>
+            <li class="d-flex align-items-center">
+                <div class="seat selected me-2"></div> <small>WYBRANE</small>
+            </li>
+            <li class="d-flex align-items-center">
+                <div class="seat taken me-2"></div> <small>ZAJĘTE</small>
+            </li>
+        </ul>
+
+        <div class="screen-container perspective">
+            <div class="screen">EKRAN</div>
+        </div>
+
+        <div id="seat-map" class="seat-grid mb-5">
+            <div class="spinner-border text-info" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+
+        <div class="fixed-bottom bg-dark p-3 border-top border-info text-center" style="background: rgba(11, 12, 16, 0.95);">
+            <button id="bookBtn" class="btn btn-lg px-5" disabled>
+                POTWIERDŹ REZERWACJĘ
+            </button>
+        </div>
+
+        <div id="alertPlaceholder" class="mt-3"></div>
+    </div>
+
+    <script th:inline="javascript">
+        const screeningId = [[${screeningId}]];
+        const apiUrl = `/api/v1/bookings/screening/${screeningId}/seats`;
+        const bookUrl = `/api/v1/bookings`;
+
+        let selectedSeatIds = [];
+        const TICKET_PRICE = 25.00;
+
+        document.addEventListener('DOMContentLoaded', loadSeats);
+
+        function loadSeats() {
+            fetch(apiUrl)
+                .then(response => response.json())
+                .then(seats => renderSeats(seats))
+                .catch(error => showAlert('Błąd systemu', 'danger'));
+        }
+
+        function renderSeats(seats) {
+            const container = document.getElementById('seat-map');
+            container.innerHTML = '';
+
+            const rows = {};
+            seats.forEach(seat => {
+                if (!rows[seat.rowNumber]) rows[seat.rowNumber] = [];
+                rows[seat.rowNumber].push(seat);
+            });
+
+            Object.keys(rows).sort((a,b) => a - b).forEach(rowNum => {
+                const rowContainer = document.createElement('div');
+                rowContainer.className = 'seat-row-container';
+
+                const leftIndicator = document.createElement('div');
+                leftIndicator.className = 'row-indicator';
+                leftIndicator.innerText = rowNum;
+                rowContainer.appendChild(leftIndicator);
+
+                const seatsDiv = document.createElement('div');
+                seatsDiv.className = 'seat-row';
+
+                rows[rowNum].sort((a,b) => a.seatNumber - b.seatNumber).forEach(seat => {
+                    const seatDiv = document.createElement('div');
+                    seatDiv.classList.add('seat');
+                    seatDiv.dataset.id = seat.id;
+
+                    seatDiv.innerText = seat.seatNumber;
+                    seatDiv.title = `Rząd: ${seat.rowNumber} | Miejsce: ${seat.seatNumber} | Cena: ${TICKET_PRICE} PLN`;
+
+                    if (!seat.available) {
+                        seatDiv.classList.add('taken');
+                    } else {
+                        seatDiv.addEventListener('click', () => toggleSeat(seatDiv, seat.id));
+                    }
+
+                    seatsDiv.appendChild(seatDiv);
+                });
+
+                rowContainer.appendChild(seatsDiv);
+
+                const rightIndicator = document.createElement('div');
+                rightIndicator.classList.add('row-indicator');
+                rightIndicator.innerText = rowNum;
+                rowContainer.appendChild(rightIndicator);
+
+                container.appendChild(rowContainer);
+            });
+        }
+
+        function toggleSeat(element, id) {
+            if (selectedSeatIds.includes(id)) {
+                selectedSeatIds = selectedSeatIds.filter(seatId => seatId !== id);
+                element.classList.remove('selected');
+            } else {
+                selectedSeatIds.push(id);
+                element.classList.add('selected');
+            }
+
+            const btn = document.getElementById('bookBtn');
+            if (selectedSeatIds.length > 0) {
+                btn.disabled = false;
+                const total = (selectedSeatIds.length * TICKET_PRICE).toFixed(2);
+                btn.innerText = `REZERWUJ (${selectedSeatIds.length}) - ${total} PLN`;
+            } else {
+                btn.disabled = true;
+                btn.innerText = 'POTWIERDŹ REZERWACJĘ';
+            }
+        }
+
+        document.getElementById('bookBtn').addEventListener('click', () => {
+            if (selectedSeatIds.length === 0) return;
+
+            const bookingData = {
+                screeningId: screeningId,
+                seatIds: selectedSeatIds
+            };
+
+            fetch(bookUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(bookingData)
+            })
+            .then(response => {
+                if (response.ok) return response.json();
+                throw new Error('Błąd transakcji');
+            })
+            .then(ticketIds => {
+                const idsParam = ticketIds.join(',');
+                window.location.href = `/booking/success?ids=${idsParam}`;
+            })
+            .catch(error => {
+                showAlert('Jedno z miejsc jest już zajęte', 'danger');
+            });
+        });
+
+        function showAlert(message, type) {
+            const wrapper = document.createElement('div');
+            wrapper.innerHTML = [
+                `<div class="alert alert-${type} alert-dismissible bg-dark text-white border-${type}" role="alert">`,
+                `   <div>${message}</div>`,
+                '   <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>',
+                '</div>'
+            ].join('');
+            document.getElementById('alertPlaceholder').innerHTML = '';
+            document.getElementById('alertPlaceholder').append(wrapper);
+        }
+    </script>
+</div>
+</body>
+</html>

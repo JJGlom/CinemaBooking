@@ -47,7 +47,7 @@ public class Ticket {
     @PrePersist
     public void prePersist() {
         if (ticketIdentifier == null) {
-            ticketIdentifier = UUID.randomUUID().toString(); // Automatyczne generowanie UUID
+            ticketIdentifier = UUID.randomUUID().toString();
         }
         if (purchaseDate == null) {
             purchaseDate = LocalDateTime.now();

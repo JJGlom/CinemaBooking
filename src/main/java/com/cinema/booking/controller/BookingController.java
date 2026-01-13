@@ -24,8 +24,8 @@ public class BookingController {
     }
 
     @PostMapping
-    public ResponseEntity<Long> bookTicket(@Valid @RequestBody BookTicketDto bookTicketDto) {
-        Long ticketId = bookingService.bookTicket(bookTicketDto);
-        return new ResponseEntity<>(ticketId, HttpStatus.CREATED);
+    public ResponseEntity<List<Long>> bookTicket(@Valid @RequestBody BookTicketDto bookTicketDto) {
+        List<Long> ticketIds = bookingService.bookTicket(bookTicketDto);
+        return new ResponseEntity<>(ticketIds, HttpStatus.CREATED);
     }
 }

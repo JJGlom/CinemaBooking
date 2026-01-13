@@ -24,7 +24,7 @@ public record MovieDto(
 
         Integer ageRestriction,
 
-        String posterUrl,    // Tu był błąd (średnik zamiast przecinka)
-        String trailerUrl,   // Tu też
+        String posterUrl,
+        String trailerUrl,
         String castMembers
 ) {}
