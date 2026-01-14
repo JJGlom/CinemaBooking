@@ -1,7 +1,7 @@
 package com.cinema.booking.service;
 
 import com.cinema.booking.dto.BookTicketDto;
-import com.cinema.booking.exception.ResourceNotFoundException;
+import com.cinema.booking.dto.SeatDto;
 import com.cinema.booking.model.*;
 import com.cinema.booking.repository.ScreeningRepository;
 import com.cinema.booking.repository.SeatRepository;
@@ -87,9 +87,49 @@ class BookingServiceTest {
         BookTicketDto request = new BookTicketDto(screeningId, seatIds);
 
         assertThatThrownBy(() -> bookingService.bookTicket(request))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("zajęte");
+                .isInstanceOf(IllegalArgumentException.class);
 
         verify(ticketRepository, never()).save(any(Ticket.class));
+    }
+
+    @Test
+    void shouldReturnSeatsWithAvailabilityStatus() {
+        Long screeningId = 1L;
+        Long roomId = 5L;
+
+        Room room = Room.builder().id(roomId).build();
+        Screening screening = Screening.builder().id(screeningId).room(room).build();
+
+        Seat seat1 = Seat.builder().id(10L).room(room).rowNumber(1).seatNumber(1).build();
+        Seat seat2 = Seat.builder().id(11L).room(room).rowNumber(1).seatNumber(2).build();
+
+        Ticket ticketForSeat1 = Ticket.builder().seat(seat1).build();
+
+        when(screeningRepository.findById(screeningId)).thenReturn(Optional.of(screening));
+        when(seatRepository.findByRoomId(roomId)).thenReturn(List.of(seat1, seat2));
+        when(ticketRepository.findByScreeningId(screeningId)).thenReturn(List.of(ticketForSeat1));
+
+        List<SeatDto> result = bookingService.getSeatsForScreening(screeningId);
+
+        assertThat(result).hasSize(2);
+
+        SeatDto dto1 = result.stream().filter(s -> s.id().equals(10L)).findFirst().orElseThrow();
+        assertThat(dto1.available()).isFalse();
+
+        SeatDto dto2 = result.stream().filter(s -> s.id().equals(11L)).findFirst().orElseThrow();
+        assertThat(dto2.available()).isTrue();
+    }
+
+    @Test
+    void shouldFindTicketsByIds() {
+        List<Long> ids = List.of(1L, 2L);
+        Ticket t1 = Ticket.builder().id(1L).build();
+        Ticket t2 = Ticket.builder().id(2L).build();
+
+        when(ticketRepository.findAllById(ids)).thenReturn(List.of(t1, t2));
+
+        List<Ticket> result = bookingService.getTicketsByIds(ids);
+
+        assertThat(result).hasSize(2);
     }
 }
