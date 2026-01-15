@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: layout(~{::content})}">
+<body>
+<div th:fragment="content">
+    <div class="container mt-4">
+        <div th:if="${success}" class="alert alert-success alert-dismissible fade show border-success bg-dark text-success" role="alert">
+            <strong th:text="${success}"></strong>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
+        <div th:if="${error}" class="alert alert-danger alert-dismissible fade show border-danger bg-dark text-danger" role="alert">
+            <strong th:text="${error}"></strong>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 style="color: #66fcf1;">ZARZĄDZANIE SEANSAMI</h2>
+            <a href="/admin/screenings/add" class="btn btn-warning fw-bold text-dark">ZAPLANUJ NOWY SEANS</a>
+        </div>
+
+        <form action="/admin/screenings" method="get" class="mb-4 d-flex align-items-center gap-3">
+            <label class="text-white">Pokaż seanse na dzień:</label>
+            <input type="date" name="date" class="form-control w-auto bg-dark text-white border-info"
+                   th:value="${selectedDate}" onchange="this.form.submit()">
+        </form>
+
+        <div class="alert alert-dark border-secondary" th:if="${screenings.empty}">
+            Brak seansów zaplanowanych na ten dzień.
+        </div>
+
+        <div class="table-responsive" th:unless="${screenings.empty}">
+            <table class="table table-dark table-hover" style="border: 1px solid #45a29e;">
+                <thead>
+                <tr style="color: #66fcf1;">
+                    <th>Godzina</th>
+                    <th>Film</th>
+                    <th>Sala</th>
+                    <th>Koniec</th>
+                    <th>Akcje</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="screening : ${screenings}">
+                    <td class="fw-bold fs-5 text-warning" th:text="${#temporals.format(screening.startTime(), 'HH:mm')}">18:00</td>
+                    <td th:text="${screening.movieTitle()}">Tytuł</td>
+                    <td th:text="${screening.roomName()}">Sala</td>
+                    <td class="text-muted" th:text="${#temporals.format(screening.endTime(), 'HH:mm')}">20:30</td>
+                    <td>
+                        <a th:href="@{/admin/screenings/delete/{id}(id=${screening.id}, date=${selectedDate})}"
+                           class="btn btn-sm btn-danger fw-bold"
+                           style="letter-spacing: 1px;"
+                           onclick="return confirm('Czy na pewno chcesz odwołać ten seans?');">
+                            USUŃ
+                        </a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+</body>
+</html>

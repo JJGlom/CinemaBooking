@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: layout(~{::content})}">
+<body>
+<div th:fragment="content">
+    <div class="container mt-4">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card shadow-lg">
+                    <div class="card-header border-bottom border-info text-center py-3">
+                        <h4 style="color: #66fcf1;">ZAPLANUJ SEANS</h4>
+                    </div>
+                    <div class="card-body p-4" style="background-color: #1f2833;">
+
+                        <div th:if="${error}" class="alert alert-danger text-center">
+                            <span th:text="${error}">Błąd</span>
+                        </div>
+
+                        <form th:action="@{/admin/screenings/add}" th:object="${screening}" method="post">
+
+                            <div class="mb-3">
+                                <label class="form-label text-info">Film</label>
+                                <select class="form-select bg-dark text-white border-secondary" th:field="*{movieId}">
+                                    <option value="" disabled selected>-- Wybierz film --</option>
+                                    <option th:each="movie : ${movies}"
+                                            th:value="${movie.id}"
+                                            th:text="${movie.title}">Diuna</option>
+                                </select>
+                                <div class="text-danger small mt-1" th:if="${#fields.hasErrors('movieId')}" th:errors="*{movieId}"></div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label text-info">Sala</label>
+                                <select class="form-select bg-dark text-white border-secondary" th:field="*{roomId}">
+                                    <option value="" disabled selected>-- Wybierz salę --</option>
+                                    <option th:each="room : ${rooms}"
+                                            th:value="${room.id}"
+                                            th:text="${room.name} + ' (Miejsc: ' + ${room.capacity} + ')'">Sala A</option>
+                                </select>
+                                <div class="text-danger small mt-1" th:if="${#fields.hasErrors('roomId')}" th:errors="*{roomId}"></div>
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="form-label text-info">Data i Godzina</label>
+                                <input type="datetime-local" class="form-control bg-dark text-white border-secondary" th:field="*{startTime}">
+                                <div class="text-danger small mt-1" th:if="${#fields.hasErrors('startTime')}" th:errors="*{startTime}"></div>
+                            </div>
+
+                            <div class="d-flex justify-content-between mt-4">
+                                <a href="/admin/screenings" class="btn btn-outline-secondary">ANULUJ</a>
+                                <button type="submit" class="btn btn-warning px-5 fw-bold">DODAJ DO REPERTUARU</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

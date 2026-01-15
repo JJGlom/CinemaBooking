@@ -91,4 +91,12 @@ public class ScreeningService {
                 .endTime(endTime)
                 .build();
     }
+
+    @Transactional
+    public void deleteScreening(Long id) {
+        if (!screeningRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Seans nie istnieje");
+        }
+        screeningRepository.deleteById(id);
+    }
 }
