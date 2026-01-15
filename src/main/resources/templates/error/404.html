@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: layout(~{::content})}">
+<body>
+<div th:fragment="content">
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-6 text-center">
+
+                <div class="card shadow-lg" style="border: 2px solid #66fcf1; background-color: #0b0c10;">
+                    <div class="card-body p-5">
+                        <h1 style="color: #66fcf1; font-size: 5rem; text-shadow: 0 0 20px #66fcf1;">404</h1>
+                        <h2 class="mb-4 text-white text-uppercase" style="letter-spacing: 3px;">Zgubiono Sygnał</h2>
+
+                        <p class="text-muted mb-4 fs-5">
+                            Podana strona nie istnieje w cyberprzestrzeni.<br>
+                            Sprawdź koordynaty i spróbuj ponownie.
+                        </p>
+
+                        <div class="d-grid gap-2 col-8 mx-auto">
+                            <a href="/" class="btn btn-outline-info btn-lg text-uppercase fw-bold"
+                               style="border-color: #66fcf1; color: #66fcf1;">
+                                WRÓĆ NA GŁÓWNĄ
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

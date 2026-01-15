@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: layout(~{::content})}">
+<body>
+<div th:fragment="content">
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-5">
+                <div class="card shadow-lg" style="border: 2px solid #66fcf1;">
+                    <div class="card-header text-center py-3" style="background-color: #0b0c10; border-bottom: 1px solid #45a29e;">
+                        <h3 style="color: #66fcf1; text-transform: uppercase; letter-spacing: 2px;">System Access</h3>
+                    </div>
+                    <div class="card-body p-4" style="background-color: #1f2833;">
+
+                        <div th:if="${param.error}" class="alert alert-danger bg-dark text-danger border-danger">
+                            Nieprawidłowy login lub hasło.
+                        </div>
+                        <div th:if="${param.logout}" class="alert alert-info bg-dark text-info border-info">
+                            Zostałeś wylogowany.
+                        </div>
+                        <div th:if="${param.success}" class="alert alert-success bg-dark text-success border-success">
+                            Rejestracja udana! Możesz się zalogować.
+                        </div>
+
+                        <form th:action="@{/login}" method="post">
+                            <div class="mb-4">
+                                <label class="form-label text-info fw-bold">UŻYTKOWNIK</label>
+                                <input type="text" name="username" class="form-control bg-dark text-white border-secondary" placeholder="Wpisz login..." required autofocus>
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="form-label text-info fw-bold">HASŁO</label>
+                                <input type="password" name="password" class="form-control bg-dark text-white border-secondary" placeholder="Wpisz hasło..." required>
+                            </div>
+
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-outline-success btn-lg fw-bold" style="text-transform: uppercase; letter-spacing: 1px;">
+                                    Zaloguj się
+                                </button>
+                            </div>
+                        </form>
+
+                        <div class="text-center mt-3">
+                            <span class="text-muted">Nie masz konta?</span>
+                            <a href="/register" class="text-warning text-decoration-none fw-bold">Zarejestruj się</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

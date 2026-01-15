@@ -1,16 +1,17 @@
 package com.cinema.booking.controller;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import org.springframework.dao.DataIntegrityViolationException;
+
 import com.cinema.booking.dto.CreateScreeningDto;
 import com.cinema.booking.service.MovieService;
 import com.cinema.booking.service.ScreeningService;
-import com.cinema.booking.repository.RoomRepository;
+import com.cinema.booking.service.RoomService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDate;
 
@@ -21,7 +22,7 @@ public class AdminScreeningController {
 
     private final ScreeningService screeningService;
     private final MovieService movieService;
-    private final RoomRepository roomRepository;
+    private final RoomService roomService;
 
     @GetMapping
     public String listScreenings(@RequestParam(required = false) LocalDate date, Model model) {
@@ -35,7 +36,7 @@ public class AdminScreeningController {
     public String showAddForm(Model model) {
         model.addAttribute("screening", new CreateScreeningDto(null, null, null));
         model.addAttribute("movies", movieService.getAllMovies());
-        model.addAttribute("rooms", roomRepository.findAll());
+        model.addAttribute("rooms", roomService.getAllRooms());
         return "admin/screening-form";
     }
 
@@ -45,16 +46,16 @@ public class AdminScreeningController {
                                Model model) {
         if (result.hasErrors()) {
             model.addAttribute("movies", movieService.getAllMovies());
-            model.addAttribute("rooms", roomRepository.findAll());
+            model.addAttribute("rooms", roomService.getAllRooms());
             return "admin/screening-form";
         }
 
         try {
             screeningService.createScreening(dto);
         } catch (IllegalArgumentException e) {
-            model.addAttribute("error", e.getMessage()); // Np. "Sala zajęta"
+            model.addAttribute("error", e.getMessage());
             model.addAttribute("movies", movieService.getAllMovies());
-            model.addAttribute("rooms", roomRepository.findAll());
+            model.addAttribute("rooms", roomService.getAllRooms());
             return "admin/screening-form";
         }
 

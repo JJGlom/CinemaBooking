@@ -1,5 +1,8 @@
 <!DOCTYPE html>
-<html lang="pl" xmlns:th="http://www.thymeleaf.org" th:fragment="layout(content)">
+<html lang="pl"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      th:fragment="layout(content)">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -21,7 +24,8 @@
                 <li class="nav-item">
                     <a class="nav-link" href="/">Repertuar</a>
                 </li>
-                <li class="nav-item dropdown">
+
+                <li class="nav-item dropdown" sec:authorize="hasRole('ADMIN')">
                     <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="color: #ffe600;">
                         Admin Panel
                     </a>
@@ -33,8 +37,17 @@
             </ul>
 
             <ul class="navbar-nav ms-auto">
-                <li class="nav-item">
+                <li class="nav-item" sec:authorize="!isAuthenticated()">
                     <a class="nav-link" href="/login">Logowanie</a>
+                </li>
+
+                <li class="nav-item dropdown" sec:authorize="isAuthenticated()">
+                    <a class="nav-link dropdown-toggle text-info" href="#" role="button" data-bs-toggle="dropdown">
+                        Witaj, <span sec:authentication="name">User</span>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end">
+                        <li><a class="dropdown-item text-danger" href="/logout">Wyloguj się</a></li>
+                    </ul>
                 </li>
             </ul>
         </div>
