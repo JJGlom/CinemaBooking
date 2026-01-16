@@ -21,6 +21,13 @@
     <div class="row row-cols-1 row-cols-md-3 g-4" th:unless="${screenings.empty}">
         <div class="col" th:each="screening : ${screenings}">
             <div class="card h-100 shadow-lg">
+
+                <img th:if="${screening.posterUrl != null}"
+                     th:src="${screening.posterUrl}"
+                     class="card-img-top"
+                     alt="Plakat"
+                     style="height: 300px; object-fit: cover; border-bottom: 1px solid #45a29e;">
+
                 <div class="card-body">
                     <h5 class="card-title text-uppercase" th:text="${screening.movieTitle()}">TYTUŁ</h5>
                     <p class="card-text" style="color: #888;" th:text="${screening.roomName()}">SALA</p>

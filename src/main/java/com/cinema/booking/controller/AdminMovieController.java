@@ -9,6 +9,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @Controller
 @RequestMapping("/admin/movies")
@@ -30,9 +31,18 @@ public class AdminMovieController {
     }
 
     @PostMapping("/add")
-    public String addMovie(@Valid @ModelAttribute("movie") MovieDto movieDto, BindingResult result) {
+    public String addMovie(@Valid @ModelAttribute("movie") MovieDto movieDto,
+                           BindingResult result,
+                           @RequestParam("image") MultipartFile image) {
         if (result.hasErrors()) {
             return "admin/movie-form";
+        }
+
+        String posterUrl = null;
+        if (!image.isEmpty()) {
+            posterUrl = movieService.storePoster(image);
+        } else {
+            posterUrl = movieDto.posterUrl();
         }
 
         Movie movie = Movie.builder()
@@ -42,7 +52,7 @@ public class AdminMovieController {
                 .director(movieDto.director())
                 .durationMinutes(movieDto.durationMinutes())
                 .ageRestriction(movieDto.ageRestriction())
-                .posterUrl(movieDto.posterUrl())
+                .posterUrl(posterUrl)
                 .trailerUrl(movieDto.trailerUrl())
                 .castMembers(movieDto.castMembers())
                 .build();

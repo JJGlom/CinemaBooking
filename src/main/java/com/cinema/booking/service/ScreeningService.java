@@ -64,6 +64,14 @@ public class ScreeningService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
+    public void deleteScreening(Long id) {
+        if (!screeningRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Seans nie istnieje");
+        }
+        screeningRepository.deleteById(id);
+    }
+
     private void validateRoomAvailability(Long roomId, LocalDateTime newStart, LocalDateTime newEnd) {
         List<Screening> existingScreenings = screeningRepository.findByRoomIdAndStartTimeBetween(
                 roomId, newStart.minusHours(4), newEnd.plusHours(4));
@@ -85,18 +93,11 @@ public class ScreeningService {
                 .id(screening.getId())
                 .movieId(screening.getMovie().getId())
                 .movieTitle(screening.getMovie().getTitle())
+                .posterUrl(screening.getMovie().getPosterUrl())
                 .roomId(screening.getRoom().getId())
                 .roomName(screening.getRoom().getName())
                 .startTime(screening.getStartTime())
                 .endTime(endTime)
                 .build();
-    }
-
-    @Transactional
-    public void deleteScreening(Long id) {
-        if (!screeningRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Seans nie istnieje");
-        }
-        screeningRepository.deleteById(id);
     }
 }

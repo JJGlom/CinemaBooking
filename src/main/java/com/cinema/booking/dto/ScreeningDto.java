@@ -8,6 +8,7 @@ public record ScreeningDto(
         Long id,
         Long movieId,
         String movieTitle,
+        String posterUrl,
         Long roomId,
         String roomName,
         LocalDateTime startTime,
