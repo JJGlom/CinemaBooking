@@ -1,6 +1,8 @@
 package com.cinema.booking.controller;
 
 import com.cinema.booking.dto.BookTicketDto;
+import com.cinema.booking.dto.TicketSelection;
+import com.cinema.booking.model.TicketType;
 import com.cinema.booking.service.BookingService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
@@ -34,7 +36,10 @@ class BookingControllerTest {
     @Test
     @WithMockUser
     void shouldCreateBookingAndReturnCreatedStatus() throws Exception {
-        BookTicketDto request = new BookTicketDto(1L, List.of(10L, 11L));
+        TicketSelection ts1 = new TicketSelection(10L, TicketType.NORMAL);
+        TicketSelection ts2 = new TicketSelection(11L, TicketType.REDUCED);
+
+        BookTicketDto request = new BookTicketDto(1L, List.of(ts1, ts2));
         List<Long> createdIds = List.of(100L, 101L);
 
         when(bookingService.bookTicket(any(BookTicketDto.class))).thenReturn(createdIds);

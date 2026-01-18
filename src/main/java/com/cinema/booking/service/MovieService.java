@@ -4,6 +4,8 @@ import com.cinema.booking.exception.ResourceNotFoundException;
 import com.cinema.booking.model.Movie;
 import com.cinema.booking.repository.MovieRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -28,6 +30,10 @@ public class MovieService {
         return movieRepository.findAll();
     }
 
+    public Page<Movie> getAllMovies(Pageable pageable) {
+        return movieRepository.findAll(pageable);
+    }
+
     public Movie getMovieById(Long id) {
         return movieRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Nie znaleziono filmu o id: " + id));
@@ -35,6 +41,26 @@ public class MovieService {
 
     @Transactional
     public Movie addMovie(Movie movie) {
+        return movieRepository.save(movie);
+    }
+
+    @Transactional
+    public Movie updateMovie(Long id, Movie movieDetails) {
+        Movie movie = getMovieById(id);
+
+        movie.setTitle(movieDetails.getTitle());
+        movie.setDescription(movieDetails.getDescription());
+        movie.setGenre(movieDetails.getGenre());
+        movie.setDirector(movieDetails.getDirector());
+        movie.setDurationMinutes(movieDetails.getDurationMinutes());
+        movie.setAgeRestriction(movieDetails.getAgeRestriction());
+        movie.setCastMembers(movieDetails.getCastMembers());
+        movie.setTrailerUrl(movieDetails.getTrailerUrl());
+
+        if (movieDetails.getPosterUrl() != null) {
+            movie.setPosterUrl(movieDetails.getPosterUrl());
+        }
+
         return movieRepository.save(movie);
     }
 

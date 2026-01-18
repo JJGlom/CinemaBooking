@@ -2,6 +2,7 @@ package com.cinema.booking.service;
 
 import com.cinema.booking.dto.BookTicketDto;
 import com.cinema.booking.dto.SeatDto;
+import com.cinema.booking.dto.TicketSelection;
 import com.cinema.booking.model.*;
 import com.cinema.booking.repository.ScreeningRepository;
 import com.cinema.booking.repository.SeatRepository;
@@ -41,6 +42,8 @@ class BookingServiceTest {
     @Test
     void shouldBookTicketsSuccessfully() {
         Long screeningId = 1L;
+        TicketSelection ts1 = new TicketSelection(10L, TicketType.NORMAL);
+        TicketSelection ts2 = new TicketSelection(11L, TicketType.REDUCED);
         List<Long> seatIds = List.of(10L, 11L);
 
         Screening screening = Screening.builder()
@@ -52,13 +55,13 @@ class BookingServiceTest {
         Seat seat2 = Seat.builder().id(11L).rowNumber(1).seatNumber(2).build();
 
         when(screeningRepository.findById(screeningId)).thenReturn(Optional.of(screening));
-        when(seatRepository.findAllById(seatIds)).thenReturn(List.of(seat1, seat2));
+        when(seatRepository.findAllById(anyList())).thenReturn(List.of(seat1, seat2));
         when(ticketRepository.findByScreeningId(screeningId)).thenReturn(Collections.emptyList());
 
         Ticket savedTicket = Ticket.builder().id(100L).price(BigDecimal.valueOf(25)).build();
         when(ticketRepository.save(any(Ticket.class))).thenReturn(savedTicket);
 
-        BookTicketDto request = new BookTicketDto(screeningId, seatIds);
+        BookTicketDto request = new BookTicketDto(screeningId, List.of(ts1, ts2));
 
         List<Long> resultIds = bookingService.bookTicket(request);
 
@@ -69,7 +72,7 @@ class BookingServiceTest {
     @Test
     void shouldThrowExceptionWhenSeatIsAlreadyTaken() {
         Long screeningId = 1L;
-        List<Long> seatIds = List.of(10L);
+        TicketSelection ts1 = new TicketSelection(10L, TicketType.NORMAL);
 
         Screening screening = Screening.builder().id(screeningId).build();
         Seat seat = Seat.builder().id(10L).build();
@@ -81,10 +84,10 @@ class BookingServiceTest {
                 .build();
 
         when(screeningRepository.findById(screeningId)).thenReturn(Optional.of(screening));
-        when(seatRepository.findAllById(seatIds)).thenReturn(List.of(seat));
+        when(seatRepository.findAllById(anyList())).thenReturn(List.of(seat));
         when(ticketRepository.findByScreeningId(screeningId)).thenReturn(List.of(existingTicket));
 
-        BookTicketDto request = new BookTicketDto(screeningId, seatIds);
+        BookTicketDto request = new BookTicketDto(screeningId, List.of(ts1));
 
         assertThatThrownBy(() -> bookingService.bookTicket(request))
                 .isInstanceOf(IllegalArgumentException.class);

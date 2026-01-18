@@ -8,17 +8,20 @@
     <div class="container text-center">
         <h2 class="my-4" style="color: #66fcf1; text-transform: uppercase; letter-spacing: 3px;">Wybierz miejsca</h2>
 
-        <ul class="d-flex justify-content-center list-unstyled seat-legend mb-5 gap-4">
-            <li class="d-flex align-items-center">
-                <div class="seat me-2"></div> <small>WOLNE</small>
-            </li>
-            <li class="d-flex align-items-center">
-                <div class="seat selected me-2"></div> <small>WYBRANE</small>
-            </li>
-            <li class="d-flex align-items-center">
-                <div class="seat taken me-2"></div> <small>ZAJĘTE</small>
-            </li>
-        </ul>
+        <div class="ticket-type-selector">
+            <div class="type-option normal active" onclick="setTicketType('NORMAL')">
+                <h5 class="mb-0">NORMALNY</h5>
+                <small>25.00 PLN</small>
+            </div>
+            <div class="type-option reduced" onclick="setTicketType('REDUCED')">
+                <h5 class="mb-0">ULGOWY</h5>
+                <small>18.00 PLN</small>
+            </div>
+            <div class="type-option family" onclick="setTicketType('FAMILY')">
+                <h5 class="mb-0">RODZINNY</h5>
+                <small>15.00 PLN</small>
+            </div>
+        </div>
 
         <div class="screen-container perspective">
             <div class="screen">EKRAN</div>
@@ -31,9 +34,12 @@
         </div>
 
         <div class="fixed-bottom bg-dark p-3 border-top border-info text-center" style="background: rgba(11, 12, 16, 0.95);">
-            <button id="bookBtn" class="btn btn-lg px-5" disabled>
-                POTWIERDŹ REZERWACJĘ
-            </button>
+            <div class="container">
+                <div id="summaryText" class="mb-2 text-white">Wybierz typ biletu powyżej, a następnie kliknij miejsca na mapie.</div>
+                <button id="bookBtn" class="btn btn-lg px-5" disabled>
+                    POTWIERDŹ REZERWACJĘ
+                </button>
+            </div>
         </div>
 
         <div id="alertPlaceholder" class="mt-3"></div>
@@ -44,10 +50,24 @@
         const apiUrl = `/api/v1/bookings/screening/${screeningId}/seats`;
         const bookUrl = `/api/v1/bookings`;
 
-        let selectedSeatIds = [];
-        const TICKET_PRICE = 25.00;
+        // Przechowuje mapę: seatId -> ticketType
+        let selectedSeats = new Map();
+
+        let currentTicketType = 'NORMAL';
+        const PRICES = {
+            'NORMAL': 25.00,
+            'REDUCED': 18.00,
+            'FAMILY': 15.00
+        };
 
         document.addEventListener('DOMContentLoaded', loadSeats);
+
+        function setTicketType(type) {
+            currentTicketType = type;
+
+            document.querySelectorAll('.type-option').forEach(el => el.classList.remove('active'));
+            document.querySelector(`.type-option.${type.toLowerCase()}`).classList.add('active');
+        }
 
         function loadSeats() {
             fetch(apiUrl)
@@ -82,9 +102,7 @@
                     const seatDiv = document.createElement('div');
                     seatDiv.classList.add('seat');
                     seatDiv.dataset.id = seat.id;
-
                     seatDiv.innerText = seat.seatNumber;
-                    seatDiv.title = `Rząd: ${seat.rowNumber} | Miejsce: ${seat.seatNumber} | Cena: ${TICKET_PRICE} PLN`;
 
                     if (!seat.available) {
                         seatDiv.classList.add('taken');
@@ -107,31 +125,53 @@
         }
 
         function toggleSeat(element, id) {
-            if (selectedSeatIds.includes(id)) {
-                selectedSeatIds = selectedSeatIds.filter(seatId => seatId !== id);
-                element.classList.remove('selected');
+            if (selectedSeats.has(id)) {
+                selectedSeats.delete(id);
+                element.className = 'seat'; // reset klas
             } else {
-                selectedSeatIds.push(id);
-                element.classList.add('selected');
+                selectedSeats.set(id, currentTicketType);
+                element.className = `seat selected-${currentTicketType.toLowerCase()}`;
             }
+            updateSummary();
+        }
 
+        function updateSummary() {
             const btn = document.getElementById('bookBtn');
-            if (selectedSeatIds.length > 0) {
+            let total = 0;
+            let count = 0;
+
+            selectedSeats.forEach((type) => {
+                total += PRICES[type];
+                count++;
+            });
+
+            const summaryText = document.getElementById('summaryText');
+
+            if (count > 0) {
                 btn.disabled = false;
-                const total = (selectedSeatIds.length * TICKET_PRICE).toFixed(2);
-                btn.innerText = `REZERWUJ (${selectedSeatIds.length}) - ${total} PLN`;
+                btn.innerText = `REZERWUJ (${total.toFixed(2)} PLN)`;
+                summaryText.innerText = `Wybrano ${count} miejsc.`;
             } else {
                 btn.disabled = true;
                 btn.innerText = 'POTWIERDŹ REZERWACJĘ';
+                summaryText.innerText = 'Wybierz typ biletu powyżej, a następnie kliknij miejsca na mapie.';
             }
         }
 
         document.getElementById('bookBtn').addEventListener('click', () => {
-            if (selectedSeatIds.length === 0) return;
+            if (selectedSeats.size === 0) return;
+
+            const ticketsList = [];
+            selectedSeats.forEach((type, id) => {
+                ticketsList.push({
+                    seatId: id,
+                    ticketType: type
+                });
+            });
 
             const bookingData = {
                 screeningId: screeningId,
-                seatIds: selectedSeatIds
+                tickets: ticketsList
             };
 
             fetch(bookUrl, {

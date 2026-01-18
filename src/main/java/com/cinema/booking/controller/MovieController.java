@@ -5,6 +5,8 @@ import com.cinema.booking.model.Movie;
 import com.cinema.booking.service.MovieService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,11 +22,9 @@ public class MovieController {
     private final MovieService movieService;
 
     @GetMapping
-    public ResponseEntity<List<MovieDto>> getAllMovies() {
-        List<Movie> movies = movieService.getAllMovies();
-        List<MovieDto> dtos = movies.stream()
-                .map(this::mapToDto)
-                .collect(Collectors.toList());
+    public ResponseEntity<Page<MovieDto>> getAllMovies(Pageable pageable) {
+        Page<Movie> movies = movieService.getAllMovies(pageable);
+        Page<MovieDto> dtos = movies.map(this::mapToDto);
         return ResponseEntity.ok(dtos);
     }
 
@@ -39,6 +39,13 @@ public class MovieController {
         Movie movie = mapToEntity(movieDto);
         Movie savedMovie = movieService.addMovie(movie);
         return new ResponseEntity<>(mapToDto(savedMovie), HttpStatus.CREATED);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<MovieDto> updateMovie(@PathVariable Long id, @Valid @RequestBody MovieDto movieDto) {
+        Movie movie = mapToEntity(movieDto);
+        Movie updatedMovie = movieService.updateMovie(id, movie);
+        return ResponseEntity.ok(mapToDto(updatedMovie));
     }
 
     @DeleteMapping("/{id}")

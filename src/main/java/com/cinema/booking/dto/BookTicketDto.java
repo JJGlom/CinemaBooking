@@ -9,5 +9,5 @@ public record BookTicketDto(
         Long screeningId,
 
         @NotEmpty(message = "Musisz wybrać przynajmniej jedno miejsce")
-        List<Long> seatIds
+        List<TicketSelection> tickets
 ) {}
