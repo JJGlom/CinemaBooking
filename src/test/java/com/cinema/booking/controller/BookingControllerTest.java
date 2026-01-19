@@ -42,9 +42,9 @@ class BookingControllerTest {
         BookTicketDto request = new BookTicketDto(1L, List.of(ts1, ts2));
         List<Long> createdIds = List.of(100L, 101L);
 
-        when(bookingService.bookTicket(any(BookTicketDto.class))).thenReturn(createdIds);
+        when(bookingService.createReservation(any(BookTicketDto.class))).thenReturn(createdIds);
 
-        mockMvc.perform(post("/api/v1/bookings")
+        mockMvc.perform(post("/api/v1/bookings/reserve")
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
@@ -56,7 +56,7 @@ class BookingControllerTest {
     void shouldReturnBadRequestWhenInputIsInvalid() throws Exception {
         BookTicketDto invalidRequest = new BookTicketDto(null, List.of());
 
-        mockMvc.perform(post("/api/v1/bookings")
+        mockMvc.perform(post("/api/v1/bookings/reserve")
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(invalidRequest)))

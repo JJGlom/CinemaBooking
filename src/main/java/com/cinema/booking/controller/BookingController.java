@@ -3,6 +3,7 @@ package com.cinema.booking.controller;
 import com.cinema.booking.dto.BookTicketDto;
 import com.cinema.booking.dto.SeatDto;
 import com.cinema.booking.service.BookingService;
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -23,9 +24,17 @@ public class BookingController {
         return ResponseEntity.ok(bookingService.getSeatsForScreening(screeningId));
     }
 
-    @PostMapping
-    public ResponseEntity<List<Long>> bookTicket(@Valid @RequestBody BookTicketDto bookTicketDto) {
-        List<Long> ticketIds = bookingService.bookTicket(bookTicketDto);
-        return new ResponseEntity<>(ticketIds, HttpStatus.CREATED);
+    @PostMapping("/reserve")
+    public ResponseEntity<Void> reserveTickets(@Valid @RequestBody BookTicketDto bookTicketDto, HttpSession session) {
+        List<Long> ticketIds = bookingService.createReservation(bookTicketDto);
+        session.setAttribute("cartTickets", ticketIds);
+        return new ResponseEntity<>(HttpStatus.CREATED);
+    }
+
+    @PostMapping("/pay")
+    public ResponseEntity<Void> payForTickets(@RequestBody List<Long> ticketIds, HttpSession session) {
+        bookingService.confirmPayment(ticketIds);
+        session.removeAttribute("cartTickets");
+        return ResponseEntity.ok().build();
     }
 }

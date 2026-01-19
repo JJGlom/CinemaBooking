@@ -10,6 +10,7 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import java.util.List;
 
 @Controller
 @RequestMapping("/admin/movies")
@@ -30,22 +31,41 @@ public class AdminMovieController {
         return "admin/movie-form";
     }
 
-    @PostMapping("/add")
-    public String addMovie(@Valid @ModelAttribute("movie") MovieDto movieDto,
-                           BindingResult result,
-                           @RequestParam("image") MultipartFile image) {
+    @GetMapping("/edit/{id}")
+    public String showEditForm(@PathVariable Long id, Model model) {
+        Movie movie = movieService.getMovieById(id);
+        MovieDto dto = MovieDto.builder()
+                .id(movie.getId())
+                .title(movie.getTitle())
+                .description(movie.getDescription())
+                .genre(movie.getGenre())
+                .director(movie.getDirector())
+                .durationMinutes(movie.getDurationMinutes())
+                .ageRestriction(movie.getAgeRestriction())
+                .posterUrl(movie.getPosterUrl())
+                .trailerUrl(movie.getTrailerUrl())
+                .castMembers(movie.getCastMembers())
+                .build();
+
+        model.addAttribute("movie", dto);
+        return "admin/movie-form";
+    }
+
+    @PostMapping("/save")
+    public String saveMovie(@Valid @ModelAttribute("movie") MovieDto movieDto,
+                            BindingResult result,
+                            @RequestParam(value = "image", required = false) MultipartFile image,
+                            @RequestParam(value = "gallery", required = false) List<MultipartFile> gallery) {
         if (result.hasErrors()) {
             return "admin/movie-form";
         }
 
-        String posterUrl = null;
-        if (!image.isEmpty()) {
-            posterUrl = movieService.storePoster(image);
-        } else {
-            posterUrl = movieDto.posterUrl();
+        String posterUrl = movieDto.posterUrl();
+        if (image != null && !image.isEmpty()) {
+            posterUrl = movieService.storeFile(image);
         }
 
-        Movie movie = Movie.builder()
+        Movie details = Movie.builder()
                 .title(movieDto.title())
                 .description(movieDto.description())
                 .genre(movieDto.genre())
@@ -57,7 +77,12 @@ public class AdminMovieController {
                 .castMembers(movieDto.castMembers())
                 .build();
 
-        movieService.addMovie(movie);
+        if (movieDto.id() != null) {
+            movieService.updateMovie(movieDto.id(), details, gallery);
+        } else {
+            movieService.addMovie(details, gallery);
+        }
+
         return "redirect:/admin/movies";
     }
 

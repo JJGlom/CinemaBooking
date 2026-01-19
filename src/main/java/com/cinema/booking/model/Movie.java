@@ -5,6 +5,9 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table(name = "movies")
 @Getter
@@ -39,4 +42,8 @@ public class Movie {
 
     private String posterUrl;
     private String trailerUrl;
+
+    @OneToMany(mappedBy = "movie", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<MovieImage> images = new ArrayList<>();
 }

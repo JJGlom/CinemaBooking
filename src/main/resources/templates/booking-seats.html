@@ -48,11 +48,9 @@
     <script th:inline="javascript">
         const screeningId = [[${screeningId}]];
         const apiUrl = `/api/v1/bookings/screening/${screeningId}/seats`;
-        const bookUrl = `/api/v1/bookings`;
+        const bookUrl = `/api/v1/bookings/reserve`;
 
-        // Przechowuje mapę: seatId -> ticketType
         let selectedSeats = new Map();
-
         let currentTicketType = 'NORMAL';
         const PRICES = {
             'NORMAL': 25.00,
@@ -64,7 +62,6 @@
 
         function setTicketType(type) {
             currentTicketType = type;
-
             document.querySelectorAll('.type-option').forEach(el => el.classList.remove('active'));
             document.querySelector(`.type-option.${type.toLowerCase()}`).classList.add('active');
         }
@@ -127,7 +124,7 @@
         function toggleSeat(element, id) {
             if (selectedSeats.has(id)) {
                 selectedSeats.delete(id);
-                element.className = 'seat'; // reset klas
+                element.className = 'seat';
             } else {
                 selectedSeats.set(id, currentTicketType);
                 element.className = `seat selected-${currentTicketType.toLowerCase()}`;
@@ -182,12 +179,11 @@
                 body: JSON.stringify(bookingData)
             })
             .then(response => {
-                if (response.ok) return response.json();
-                throw new Error('Błąd transakcji');
-            })
-            .then(ticketIds => {
-                const idsParam = ticketIds.join(',');
-                window.location.href = `/booking/success?ids=${idsParam}`;
+                if (response.ok) {
+                    window.location.href = `/booking/cart`;
+                } else {
+                    throw new Error('Błąd transakcji');
+                }
             })
             .catch(error => {
                 showAlert('Jedno z miejsc jest już zajęte', 'danger');

@@ -11,9 +11,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 @RestController
 @RequestMapping("/api/v1/movies")
 @RequiredArgsConstructor
@@ -37,14 +34,14 @@ public class MovieController {
     @PostMapping
     public ResponseEntity<MovieDto> createMovie(@Valid @RequestBody MovieDto movieDto) {
         Movie movie = mapToEntity(movieDto);
-        Movie savedMovie = movieService.addMovie(movie);
+        Movie savedMovie = movieService.addMovie(movie, null);
         return new ResponseEntity<>(mapToDto(savedMovie), HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<MovieDto> updateMovie(@PathVariable Long id, @Valid @RequestBody MovieDto movieDto) {
         Movie movie = mapToEntity(movieDto);
-        Movie updatedMovie = movieService.updateMovie(id, movie);
+        Movie updatedMovie = movieService.updateMovie(id, movie, null);
         return ResponseEntity.ok(mapToDto(updatedMovie));
     }
 

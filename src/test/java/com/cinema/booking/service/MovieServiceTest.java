@@ -11,6 +11,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -38,7 +39,7 @@ class MovieServiceTest {
         Movie movie = Movie.builder().title("New").build();
         when(movieRepository.save(movie)).thenReturn(movie);
 
-        Movie result = movieService.addMovie(movie);
+        Movie result = movieService.addMovie(movie, null);
 
         assertThat(result).isNotNull();
         verify(movieRepository).save(movie);

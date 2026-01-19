@@ -13,21 +13,26 @@
                 <thead>
                 <tr style="color: #66fcf1;">
                     <th>ID</th>
+                    <th>Plakat</th>
                     <th>Tytuł</th>
                     <th>Gatunek</th>
-                    <th>Reżyser</th>
-                    <th>Czas (min)</th>
+                    <th>Czas</th>
                     <th>Akcje</th>
                 </tr>
                 </thead>
                 <tbody>
                 <tr th:each="movie : ${movies}">
                     <td th:text="${movie.id}">1</td>
-                    <td th:text="${movie.title}" class="fw-bold">Diuna</td>
-                    <td th:text="${movie.genre}">Sci-Fi</td>
-                    <td th:text="${movie.director}">Villeneuve</td>
-                    <td th:text="${movie.durationMinutes}">166</td>
                     <td>
+                        <img th:if="${movie.posterUrl}" th:src="${movie.posterUrl}" style="height: 50px;">
+                    </td>
+                    <td>
+                        <a th:href="@{/movies/{id}(id=${movie.id})}" class="text-white text-decoration-none fw-bold" th:text="${movie.title}">Tytuł</a>
+                    </td>
+                    <td th:text="${movie.genre}">Gatunek</td>
+                    <td th:text="${movie.durationMinutes} + ' min'">120 min</td>
+                    <td>
+                        <a th:href="@{/admin/movies/edit/{id}(id=${movie.id})}" class="btn btn-sm btn-warning">EDYTUJ</a>
                         <a th:href="@{/admin/movies/delete/{id}(id=${movie.id})}"
                            class="btn btn-sm btn-danger"
                            onclick="return confirm('Czy na pewno usunąć ten film?');">USUŃ</a>

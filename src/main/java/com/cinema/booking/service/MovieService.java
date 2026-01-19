@@ -2,6 +2,7 @@ package com.cinema.booking.service;
 
 import com.cinema.booking.exception.ResourceNotFoundException;
 import com.cinema.booking.model.Movie;
+import com.cinema.booking.model.MovieImage;
 import com.cinema.booking.repository.MovieRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -40,14 +41,14 @@ public class MovieService {
     }
 
     @Transactional
-    public Movie addMovie(Movie movie) {
+    public Movie addMovie(Movie movie, List<MultipartFile> galleryFiles) {
+        processGalleryFiles(movie, galleryFiles);
         return movieRepository.save(movie);
     }
 
     @Transactional
-    public Movie updateMovie(Long id, Movie movieDetails) {
+    public Movie updateMovie(Long id, Movie movieDetails, List<MultipartFile> galleryFiles) {
         Movie movie = getMovieById(id);
-
         movie.setTitle(movieDetails.getTitle());
         movie.setDescription(movieDetails.getDescription());
         movie.setGenre(movieDetails.getGenre());
@@ -61,6 +62,8 @@ public class MovieService {
             movie.setPosterUrl(movieDetails.getPosterUrl());
         }
 
+        processGalleryFiles(movie, galleryFiles);
+
         return movieRepository.save(movie);
     }
 
@@ -72,15 +75,11 @@ public class MovieService {
         movieRepository.deleteById(id);
     }
 
-    public String storePoster(MultipartFile file) {
-        if (file.isEmpty()) {
-            return null;
-        }
+    public String storeFile(MultipartFile file) {
+        if (file.isEmpty()) return null;
         try {
             Path uploadPath = Paths.get(UPLOAD_DIR);
-            if (!Files.exists(uploadPath)) {
-                Files.createDirectories(uploadPath);
-            }
+            if (!Files.exists(uploadPath)) Files.createDirectories(uploadPath);
 
             String originalFilename = file.getOriginalFilename();
             String extension = "";
@@ -92,11 +91,24 @@ public class MovieService {
             try (InputStream inputStream = file.getInputStream()) {
                 Files.copy(inputStream, uploadPath.resolve(fileName), StandardCopyOption.REPLACE_EXISTING);
             }
-
             return "/uploads/" + fileName;
-
         } catch (IOException e) {
             throw new RuntimeException("Nie udało się zapisać pliku: " + e.getMessage());
+        }
+    }
+
+    private void processGalleryFiles(Movie movie, List<MultipartFile> galleryFiles) {
+        if (galleryFiles != null && !galleryFiles.isEmpty()) {
+            for (MultipartFile file : galleryFiles) {
+                if (!file.isEmpty()) {
+                    String path = storeFile(file);
+                    MovieImage image = MovieImage.builder()
+                            .imageUrl(path)
+                            .movie(movie)
+                            .build();
+                    movie.getImages().add(image);
+                }
+            }
         }
     }
 }

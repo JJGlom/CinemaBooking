@@ -14,11 +14,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.time.LocalDateTime;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -32,7 +29,6 @@ public class BookingService {
 
     @Transactional(readOnly = true)
     public List<SeatDto> getSeatsForScreening(Long screeningId) {
-        log.debug("Pobieranie miejsc dla seansu ID: {}", screeningId);
         Screening screening = screeningRepository.findById(screeningId)
                 .orElseThrow(() -> new ResourceNotFoundException("Screening not found"));
 
@@ -54,59 +50,45 @@ public class BookingService {
     }
 
     @Transactional
-    public List<Long> bookTicket(BookTicketDto request) {
-        log.info("Rozpoczęcie rezerwacji dla seansu: {}, liczba biletów: {}",
-                request.screeningId(), request.tickets().size());
-
+    public List<Long> createReservation(BookTicketDto request) {
         Screening screening = screeningRepository.findById(request.screeningId())
                 .orElseThrow(() -> new ResourceNotFoundException("Screening not found"));
 
-        List<Long> seatIds = request.tickets().stream()
-                .map(TicketSelection::seatId)
-                .toList();
-
+        List<Long> seatIds = request.tickets().stream().map(TicketSelection::seatId).toList();
         List<Seat> seats = seatRepository.findAllById(seatIds);
 
-        if (seats.size() != seatIds.size()) {
-            throw new IllegalArgumentException("Nieprawidłowe identyfikatory miejsc");
-        }
-
-        boolean anyTaken = ticketRepository.findByScreeningId(screening.getId())
-                .stream()
+        boolean anyTaken = ticketRepository.findByScreeningId(screening.getId()).stream()
                 .anyMatch(t -> seatIds.contains(t.getSeat().getId()));
 
-        if (anyTaken) {
-            throw new IllegalArgumentException("Jedno z wybranych miejsc jest już zajęte");
-        }
+        if (anyTaken) throw new IllegalArgumentException("Miejsca zajęte");
 
         Map<Long, TicketType> seatTypeMap = request.tickets().stream()
                 .collect(Collectors.toMap(TicketSelection::seatId, TicketSelection::ticketType));
 
         List<Long> ticketIds = new ArrayList<>();
-
         for (Seat seat : seats) {
             TicketType type = seatTypeMap.get(seat.getId());
-            BigDecimal price = calculatePrice(type);
 
             Ticket ticket = Ticket.builder()
                     .screening(screening)
                     .seat(seat)
-                    .price(price)
                     .type(type)
+                    .price(calculatePrice(type))
                     .ticketIdentifier(UUID.randomUUID().toString())
-                    .paid(true)
+                    .paid(false)
+                    .purchaseDate(LocalDateTime.now())
                     .build();
 
             ticketIds.add(ticketRepository.save(ticket).getId());
         }
-
         return ticketIds;
     }
 
-    @Transactional(readOnly = true)
-    public Ticket getTicketById(Long id) {
-        return ticketRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Ticket not found"));
+    @Transactional
+    public void confirmPayment(List<Long> ticketIds) {
+        List<Ticket> tickets = ticketRepository.findAllById(ticketIds);
+        tickets.forEach(t -> t.setPaid(true));
+        ticketRepository.saveAll(tickets);
     }
 
     @Transactional(readOnly = true)

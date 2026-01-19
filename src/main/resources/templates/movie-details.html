@@ -39,20 +39,13 @@
             <div class="col-12">
                 <h3 class="text-white border-bottom border-secondary pb-2 mb-4">GALERIA ZDJĘĆ</h3>
                 <div class="row g-3">
-                    <div class="col-md-4">
-                        <div class="bg-dark border border-secondary p-1 d-flex align-items-center justify-content-center text-muted" style="height: 200px;">
-                            Ujęcie 1
+                    <div class="col-md-4" th:each="img : ${movie.images}">
+                        <div class="bg-dark border border-secondary p-1 d-flex align-items-center justify-content-center" style="height: 200px; overflow: hidden;">
+                            <img th:src="${img.imageUrl}" class="img-fluid" style="max-height: 100%;" alt="Galeria">
                         </div>
                     </div>
-                    <div class="col-md-4">
-                        <div class="bg-dark border border-secondary p-1 d-flex align-items-center justify-content-center text-muted" style="height: 200px;">
-                            Ujęcie 2
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="bg-dark border border-secondary p-1 d-flex align-items-center justify-content-center text-muted" style="height: 200px;">
-                            Ujęcie 3
-                        </div>
+                    <div class="col-md-12" th:if="${movie.images.empty}">
+                        <p class="text-muted">Brak zdjęć w galerii.</p>
                     </div>
                 </div>
             </div>

@@ -1,5 +1,6 @@
 package com.cinema.booking.controller;
 
+import com.cinema.booking.dto.DailyStatsDto;
 import com.cinema.booking.dto.MovieStatsDto;
 import com.cinema.booking.service.ReportService;
 import jakarta.servlet.http.HttpServletResponse;
@@ -27,16 +28,28 @@ public class ReportController {
 
     @GetMapping(value = "/sales/csv", produces = "text/csv")
     public void exportSalesStatsToCsv(HttpServletResponse response) throws IOException {
-        List<MovieStatsDto> stats = reportService.getSalesStats();
+        List<MovieStatsDto> movieStats = reportService.getSalesStats();
+        List<DailyStatsDto> dailyStats = reportService.getDailyStats();
 
         response.setContentType("text/csv");
         response.setHeader("Content-Disposition", "attachment; filename=\"raport_sprzedazy.csv\"");
 
         try (PrintWriter writer = response.getWriter()) {
+            writer.println("--- RAPORT WG FILMOW ---");
             writer.println("Tytul Filmu,Sprzedane Bilety,Przychod");
-            for (MovieStatsDto stat : stats) {
+            for (MovieStatsDto stat : movieStats) {
                 writer.printf("%s,%d,%s%n",
                         escapeCsv(stat.movieTitle()),
+                        stat.ticketsSold(),
+                        stat.totalRevenue());
+            }
+
+            writer.println();
+            writer.println("--- RAPORT DZIENNY ---");
+            writer.println("Data,Sprzedane Bilety,Przychod");
+            for (DailyStatsDto stat : dailyStats) {
+                writer.printf("%s,%d,%s%n",
+                        stat.date(),
                         stat.ticketsSold(),
                         stat.totalRevenue());
             }

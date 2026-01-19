@@ -1,10 +1,7 @@
-INSERT INTO users (username, password, role)
-SELECT 'admin', '$2a$10$GRLdNijSQMUvl/au9ofL.eDwmoohvnS8.F9FQNY/ugl9a.i.IreF.', 'ROLE_ADMIN'
-WHERE NOT EXISTS (SELECT 1 FROM users WHERE username = 'admin');
+DELETE FROM users;
 
-INSERT INTO users (username, password, role)
-SELECT 'user', '$2a$10$GRLdNijSQMUvl/au9ofL.eDwmoohvnS8.F9FQNY/ugl9a.i.IreF.', 'ROLE_USER'
-WHERE NOT EXISTS (SELECT 1 FROM users WHERE username = 'user');
+INSERT INTO users (username, password, role) VALUES ('admin', '{noop}pass', 'ROLE_ADMIN');
+INSERT INTO users (username, password, role) VALUES ('user', '{noop}pass', 'ROLE_USER');
 
 INSERT INTO rooms (id, name, capacity)
 SELECT 1, 'Sala A (IMAX)', 100

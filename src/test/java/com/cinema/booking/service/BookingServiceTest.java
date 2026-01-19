@@ -44,7 +44,6 @@ class BookingServiceTest {
         Long screeningId = 1L;
         TicketSelection ts1 = new TicketSelection(10L, TicketType.NORMAL);
         TicketSelection ts2 = new TicketSelection(11L, TicketType.REDUCED);
-        List<Long> seatIds = List.of(10L, 11L);
 
         Screening screening = Screening.builder()
                 .id(screeningId)
@@ -63,7 +62,7 @@ class BookingServiceTest {
 
         BookTicketDto request = new BookTicketDto(screeningId, List.of(ts1, ts2));
 
-        List<Long> resultIds = bookingService.bookTicket(request);
+        List<Long> resultIds = bookingService.createReservation(request);
 
         assertThat(resultIds).hasSize(2);
         verify(ticketRepository, times(2)).save(any(Ticket.class));
@@ -89,7 +88,7 @@ class BookingServiceTest {
 
         BookTicketDto request = new BookTicketDto(screeningId, List.of(ts1));
 
-        assertThatThrownBy(() -> bookingService.bookTicket(request))
+        assertThatThrownBy(() -> bookingService.createReservation(request))
                 .isInstanceOf(IllegalArgumentException.class);
 
         verify(ticketRepository, never()).save(any(Ticket.class));
