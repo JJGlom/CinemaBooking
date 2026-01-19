@@ -3,46 +3,78 @@
 <body>
 <div th:fragment="content">
 
-    <div class="row mb-5">
-        <div class="col-md-12 text-center">
-            <h2 class="mb-4" style="color: #66fcf1; text-shadow: 0 0 10px rgba(102, 252, 241, 0.5);">REPERTUAR</h2>
-            <form action="/" method="get" class="d-flex justify-content-center align-items-center gap-3">
-                <label for="date" class="form-label mb-0">WYBIERZ DATĘ:</label>
-                <input type="date" id="date" name="date" class="form-control w-auto bg-dark text-white border-info"
-                       th:value="${selectedDate}" onchange="this.form.submit()">
-            </form>
+    <div id="cinemaCarousel" class="carousel slide mb-5 shadow-lg" data-bs-ride="carousel">
+        <div class="carousel-indicators">
+            <button type="button" data-bs-target="#cinemaCarousel" data-bs-slide-to="0" class="active"></button>
+            <button type="button" data-bs-target="#cinemaCarousel" data-bs-slide-to="1"></button>
         </div>
-    </div>
-
-    <div class="alert alert-dark border-info text-info" th:if="${screenings.empty}">
-        BRAK MISJI W TYM DNIU.
-    </div>
-
-    <div class="row row-cols-1 row-cols-md-3 g-4" th:unless="${screenings.empty}">
-        <div class="col" th:each="screening : ${screenings}">
-            <div class="card h-100 shadow-lg">
-
-                <img th:if="${screening.posterUrl != null}"
-                     th:src="${screening.posterUrl}"
-                     class="card-img-top"
-                     alt="Plakat"
-                     style="height: 300px; object-fit: cover; border-bottom: 1px solid #45a29e;">
-
-                <div class="card-body">
-                    <h5 class="card-title text-uppercase" th:text="${screening.movieTitle()}">TYTUŁ</h5>
-                    <p class="card-text" style="color: #888;" th:text="${screening.roomName()}">SALA</p>
-                    <div class="d-flex justify-content-between align-items-center mt-4">
-                        <span class="badge border border-info text-info bg-transparent fs-6"
-                              th:text="${#temporals.format(screening.startTime(), 'HH:mm')}">
-                            18:00
-                        </span>
-                        <a th:href="@{/booking/screening/{id}(id=${screening.id})}" class="btn btn-outline-success btn-sm text-uppercase">REZERWUJ</a>
-                    </div>
+        <div class="carousel-inner">
+            <div class="carousel-item active">
+                <div style="height: 400px; background: linear-gradient(45deg, #0b0c10, #1f2833); display: flex; align-items: center; justify-content: center;">
+                    <h1 class="display-3 text-uppercase text-white fw-bold" style="text-shadow: 0 0 20px #66fcf1;">Tanie Wtorki -50%</h1>
                 </div>
-                <div class="card-footer border-top border-secondary text-end">
-                    <small style="color: #666;" th:text="|KONIEC: ${#temporals.format(screening.endTime(), 'HH:mm')}|">
-                        KONIEC: 20:00
-                    </small>
+            </div>
+            <div class="carousel-item">
+                <div style="height: 400px; background: linear-gradient(45deg, #1f0000, #4a0000); display: flex; align-items: center; justify-content: center;">
+                    <h1 class="display-3 text-uppercase text-white fw-bold" style="text-shadow: 0 0 20px #ff003c;">Maratony Horrorów</h1>
+                </div>
+            </div>
+        </div>
+        <button class="carousel-control-prev" type="button" data-bs-target="#cinemaCarousel" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon"></span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#cinemaCarousel" data-bs-slide="next">
+            <span class="carousel-control-next-icon"></span>
+        </button>
+    </div>
+
+    <div class="container">
+        <div class="row mb-5">
+            <div class="col-md-12 text-center">
+                <h2 class="mb-4" style="color: #66fcf1; text-shadow: 0 0 10px rgba(102, 252, 241, 0.5);">REPERTUAR</h2>
+                <form action="/" method="get" class="d-flex justify-content-center align-items-center gap-3">
+                    <label for="date" class="form-label mb-0">WYBIERZ DATĘ:</label>
+                    <input type="date" id="date" name="date" class="form-control w-auto bg-dark text-white border-info"
+                           th:value="${selectedDate}" onchange="this.form.submit()">
+                </form>
+            </div>
+        </div>
+
+        <div class="alert alert-dark border-info text-info" th:if="${screenings.empty}">
+            BRAK MISJI W TYM DNIU.
+        </div>
+
+        <div class="row row-cols-1 row-cols-md-3 g-4" th:unless="${screenings.empty}">
+            <div class="col" th:each="screening : ${screenings}">
+                <div class="card h-100 shadow-lg">
+
+                    <a th:href="@{/movies/{id}(id=${screening.movieId})}">
+                        <img th:if="${screening.posterUrl != null}"
+                             th:src="${screening.posterUrl}"
+                             class="card-img-top"
+                             alt="Plakat"
+                             style="height: 300px; object-fit: cover; border-bottom: 1px solid #45a29e;">
+                    </a>
+
+                    <div class="card-body">
+                        <h5 class="card-title text-uppercase">
+                            <a th:href="@{/movies/{id}(id=${screening.movieId})}" class="text-decoration-none" style="color: #66fcf1;"
+                               th:text="${screening.movieTitle()}">TYTUŁ</a>
+                        </h5>
+                        <p class="card-text" style="color: #888;" th:text="${screening.roomName()}">SALA</p>
+                        <div class="d-flex justify-content-between align-items-center mt-4">
+                            <span class="badge border border-info text-info bg-transparent fs-6"
+                                  th:text="${#temporals.format(screening.startTime(), 'HH:mm')}">
+                                18:00
+                            </span>
+                            <a th:href="@{/booking/screening/{id}(id=${screening.id})}" class="btn btn-outline-success btn-sm text-uppercase">REZERWUJ</a>
+                        </div>
+                    </div>
+                    <div class="card-footer border-top border-secondary text-end">
+                        <small style="color: #666;" th:text="|KONIEC: ${#temporals.format(screening.endTime(), 'HH:mm')}|">
+                            KONIEC: 20:00
+                        </small>
+                    </div>
                 </div>
             </div>
         </div>

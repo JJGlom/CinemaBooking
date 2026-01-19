@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: layout(~{::content})}">
+<body>
+<div th:fragment="content">
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-md-4">
+                <img th:src="${movie.posterUrl}" class="img-fluid rounded shadow-lg border border-info" alt="Plakat">
+            </div>
+            <div class="col-md-8">
+                <h1 class="display-4 text-white text-uppercase fw-bold" th:text="${movie.title}">TYTUŁ</h1>
+                <div class="mb-3">
+                    <span class="badge bg-warning text-dark me-2" th:text="${movie.genre}">Gatunek</span>
+                    <span class="badge bg-secondary me-2" th:text="|${movie.durationMinutes} min|">Czas</span>
+                    <span class="badge bg-danger" th:text="|Od lat: ${movie.ageRestriction}|">Wiek</span>
+                </div>
+
+                <h4 class="text-info mt-4">REŻYSERIA</h4>
+                <p class="text-light" th:text="${movie.director}">Reżyser</p>
+
+                <h4 class="text-info mt-4">OBSADA</h4>
+                <p class="text-light" th:text="${movie.castMembers}">Aktorzy</p>
+
+                <h4 class="text-info mt-4">OPIS</h4>
+                <p class="text-muted" th:text="${movie.description}">Opis filmu...</p>
+            </div>
+        </div>
+
+        <div class="row mt-5">
+            <div class="col-12">
+                <h3 class="text-white border-bottom border-secondary pb-2 mb-4">ZWIASTUN</h3>
+                <div class="ratio ratio-16x9 border border-secondary">
+                    <iframe th:src="${movie.trailerUrl}" title="YouTube video" allowfullscreen></iframe>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-5 mb-5">
+            <div class="col-12">
+                <h3 class="text-white border-bottom border-secondary pb-2 mb-4">GALERIA ZDJĘĆ</h3>
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <div class="bg-dark border border-secondary p-1 d-flex align-items-center justify-content-center text-muted" style="height: 200px;">
+                            Ujęcie 1
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="bg-dark border border-secondary p-1 d-flex align-items-center justify-content-center text-muted" style="height: 200px;">
+                            Ujęcie 2
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="bg-dark border border-secondary p-1 d-flex align-items-center justify-content-center text-muted" style="height: 200px;">
+                            Ujęcie 3
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center mt-4 mb-5">
+            <a href="/" class="btn btn-outline-info">WRÓĆ DO REPERTUARU</a>
+        </div>
+    </div>
+</div>
+</body>
+</html>
