@@ -8,6 +8,10 @@
     <div class="container text-center">
         <h2 class="my-4" style="color: #66fcf1; text-transform: uppercase; letter-spacing: 3px;">Wybierz miejsca</h2>
 
+        <div class="alert alert-secondary text-info mb-3">
+            Czas na dokończenie po zatwierdzeniu: 1 minuta.
+        </div>
+
         <div class="ticket-type-selector">
             <div class="type-option normal active" onclick="setTicketType('NORMAL')">
                 <h5 class="mb-0">NORMALNY</h5>
@@ -69,8 +73,31 @@
         function loadSeats() {
             fetch(apiUrl)
                 .then(response => response.json())
-                .then(seats => renderSeats(seats))
+                .then(seats => {
+                    renderSeats(seats);
+                    checkUrlForPreselectedSeats();
+                })
                 .catch(error => showAlert('Błąd systemu', 'danger'));
+        }
+
+        function checkUrlForPreselectedSeats() {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.has('edit') && urlParams.has('seats') && urlParams.has('types')) {
+                const seatIds = urlParams.get('seats').split(',');
+                const types = urlParams.get('types').split(',');
+
+                for (let i = 0; i < seatIds.length; i++) {
+                    const id = seatIds[i];
+                    const type = types[i];
+
+                    const seatElement = document.querySelector(`.seat[data-id='${id}']`);
+                    if (seatElement && !seatElement.classList.contains('taken')) {
+                        selectedSeats.set(Number(id), type);
+                        seatElement.className = `seat selected-${type.toLowerCase()}`;
+                    }
+                }
+                updateSummary();
+            }
         }
 
         function renderSeats(seats) {

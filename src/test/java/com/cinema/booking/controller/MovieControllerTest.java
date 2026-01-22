@@ -69,7 +69,7 @@ class MovieControllerTest {
         MovieDto dto = MovieDto.builder().title("New Movie").genre("Drama").director("Me").durationMinutes(100).build();
         Movie savedMovie = Movie.builder().id(1L).title("New Movie").genre("Drama").build();
 
-        when(movieService.addMovie(any(Movie.class), any())).thenReturn(savedMovie);
+        when(movieService.addMovie(any(Movie.class), any(), any())).thenReturn(savedMovie);
 
         mockMvc.perform(post("/api/v1/movies")
                         .with(csrf())
@@ -86,7 +86,7 @@ class MovieControllerTest {
         MovieDto dto = MovieDto.builder().title("Updated Title").genre("Drama").director("Director").durationMinutes(120).build();
         Movie updatedMovie = Movie.builder().id(movieId).title("Updated Title").genre("Drama").build();
 
-        when(movieService.updateMovie(eq(movieId), any(Movie.class), any())).thenReturn(updatedMovie);
+        when(movieService.updateMovie(eq(movieId), any(Movie.class), any(), any())).thenReturn(updatedMovie);
 
         mockMvc.perform(put("/api/v1/movies/{id}", movieId)
                         .with(csrf())

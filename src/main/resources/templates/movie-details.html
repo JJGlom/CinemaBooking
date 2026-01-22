@@ -19,7 +19,12 @@
                 <p class="text-light" th:text="${movie.director}">Reżyser</p>
 
                 <h4 class="text-info mt-4">OBSADA</h4>
-                <p class="text-light" th:text="${movie.castMembers}">Aktorzy</p>
+                <p class="text-light">
+                    <span th:each="actor, iterStat : ${movie.actors}">
+                        <span th:text="${actor.name}">Aktor</span><span th:if="${!iterStat.last}">, </span>
+                    </span>
+                    <span th:if="${#lists.isEmpty(movie.actors)}" class="text-muted">Brak danych o obsadzie</span>
+                </p>
 
                 <h4 class="text-info mt-4">OPIS</h4>
                 <p class="text-muted" th:text="${movie.description}">Opis filmu...</p>

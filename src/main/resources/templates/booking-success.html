@@ -12,7 +12,12 @@
                     <div class="card-body p-4" style="background-color: #1f2833;">
 
                         <div class="text-center mb-4">
-                            <h5 class="text-uppercase" style="color: #66fcf1; letter-spacing: 2px;">Szczegóły Zamówienia</h5>
+                            <h5 class="text-white">NUMER ZAMÓWIENIA</h5>
+                            <h1 class="display-4 fw-bold" style="color: #ffe600; letter-spacing: 5px;" th:text="${orderId}">ABC12345</h1>
+                        </div>
+
+                        <div class="text-center mb-4">
+                            <h5 class="text-uppercase" style="color: #66fcf1; letter-spacing: 2px;">Szczegóły Biletów</h5>
                         </div>
 
                         <div th:each="ticket, iter : ${tickets}" class="mb-3 p-3 border border-secondary rounded position-relative">
@@ -42,7 +47,7 @@
                                 </div>
                             </div>
                             <div class="mt-2 text-muted fst-italic" style="font-size: 0.8em;">
-                                ID: <span th:text="${ticket.ticketIdentifier}">UUID</span>
+                                Ticket ID: <span th:text="${ticket.ticketIdentifier}">UUID</span>
                             </div>
                         </div>
 

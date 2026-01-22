@@ -3,6 +3,7 @@ package com.cinema.booking.service;
 import com.cinema.booking.dto.CreateScreeningDto;
 import com.cinema.booking.dto.ScreeningDto;
 import com.cinema.booking.exception.ResourceNotFoundException;
+import com.cinema.booking.model.Actor;
 import com.cinema.booking.model.Movie;
 import com.cinema.booking.model.Room;
 import com.cinema.booking.model.Screening;
@@ -10,6 +11,7 @@ import com.cinema.booking.repository.MovieRepository;
 import com.cinema.booking.repository.RoomRepository;
 import com.cinema.booking.repository.ScreeningRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,6 +21,7 @@ import java.time.LocalTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ScreeningService {
@@ -29,6 +32,8 @@ public class ScreeningService {
 
     @Transactional
     public ScreeningDto createScreening(CreateScreeningDto dto) {
+        log.info("Tworzenie nowego seansu: filmId={}, roomId={}, data={}", dto.movieId(), dto.roomId(), dto.startTime());
+
         Movie movie = movieRepository.findById(dto.movieId())
                 .orElseThrow(() -> new ResourceNotFoundException("Movie not found"));
 
@@ -47,6 +52,7 @@ public class ScreeningService {
                 .build();
 
         Screening savedScreening = screeningRepository.save(screening);
+        log.info("Utworzono seans id: {}", savedScreening.getId());
 
         return mapToDto(savedScreening, newEndTime);
     }
@@ -66,7 +72,9 @@ public class ScreeningService {
 
     @Transactional
     public void deleteScreening(Long id) {
+        log.warn("Usuwanie seansu id: {}", id);
         if (!screeningRepository.existsById(id)) {
+            log.error("Nie znaleziono seansu do usunięcia: {}", id);
             throw new ResourceNotFoundException("Seans nie istnieje");
         }
         screeningRepository.deleteById(id);
@@ -84,6 +92,7 @@ public class ScreeningService {
         });
 
         if (overlap) {
+            log.warn("Konflikt harmonogramu w sali id: {}", roomId);
             throw new IllegalArgumentException("Room is already booked for this time interval");
         }
     }

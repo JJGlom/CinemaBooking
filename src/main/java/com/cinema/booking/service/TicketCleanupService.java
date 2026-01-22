@@ -14,9 +14,10 @@ public class TicketCleanupService {
 
     private final TicketJdbcDao ticketJdbcDao;
 
-    @Scheduled(fixedRate = 60000)
+    @Scheduled(fixedRate = 10000)
     @Transactional
     public void cleanupUnpaidTickets() {
+        log.debug("Uruchamianie procesu czyszczenia nieopłaconych biletów");
         ticketJdbcDao.deleteUnpaidTicketsOlderThan(1);
     }
 }

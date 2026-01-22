@@ -29,6 +29,7 @@ public class BookingService {
 
     @Transactional(readOnly = true)
     public List<SeatDto> getSeatsForScreening(Long screeningId) {
+        log.debug("Pobieranie dostępności miejsc dla seansu id: {}", screeningId);
         Screening screening = screeningRepository.findById(screeningId)
                 .orElseThrow(() -> new ResourceNotFoundException("Screening not found"));
 
@@ -51,6 +52,7 @@ public class BookingService {
 
     @Transactional
     public List<Long> createReservation(BookTicketDto request) {
+        log.info("Rozpoczęcie rezerwacji dla seansu id: {}, liczba miejsc: {}", request.screeningId(), request.tickets().size());
         Screening screening = screeningRepository.findById(request.screeningId())
                 .orElseThrow(() -> new ResourceNotFoundException("Screening not found"));
 
@@ -60,12 +62,17 @@ public class BookingService {
         boolean anyTaken = ticketRepository.findByScreeningId(screening.getId()).stream()
                 .anyMatch(t -> seatIds.contains(t.getSeat().getId()));
 
-        if (anyTaken) throw new IllegalArgumentException("Miejsca zajęte");
+        if (anyTaken) {
+            log.warn("Próba rezerwacji zajętych miejsc dla seansu id: {}", screening.getId());
+            throw new IllegalArgumentException("Miejsca zajęte");
+        }
 
         Map<Long, TicketType> seatTypeMap = request.tickets().stream()
                 .collect(Collectors.toMap(TicketSelection::seatId, TicketSelection::ticketType));
 
+        String orderId = UUID.randomUUID().toString().substring(0, 8).toUpperCase();
         List<Long> ticketIds = new ArrayList<>();
+
         for (Seat seat : seats) {
             TicketType type = seatTypeMap.get(seat.getId());
 
@@ -75,20 +82,33 @@ public class BookingService {
                     .type(type)
                     .price(calculatePrice(type))
                     .ticketIdentifier(UUID.randomUUID().toString())
+                    .orderId(orderId)
                     .paid(false)
                     .purchaseDate(LocalDateTime.now())
                     .build();
 
             ticketIds.add(ticketRepository.save(ticket).getId());
         }
+
+        log.info("Wstępnie zarezerwowano {} biletów. Order ID: {}", ticketIds.size(), orderId);
         return ticketIds;
     }
 
     @Transactional
+    public void cancelReservation(List<Long> ticketIds) {
+        if (ticketIds == null || ticketIds.isEmpty()) return;
+        log.info("Ręczne anulowanie rezerwacji dla biletów: {}", ticketIds);
+        List<Ticket> tickets = ticketRepository.findAllById(ticketIds);
+        ticketRepository.deleteAll(tickets);
+    }
+
+    @Transactional
     public void confirmPayment(List<Long> ticketIds) {
+        log.info("Potwierdzanie płatności dla biletów: {}", ticketIds);
         List<Ticket> tickets = ticketRepository.findAllById(ticketIds);
         tickets.forEach(t -> t.setPaid(true));
         ticketRepository.saveAll(tickets);
+        log.info("Płatność potwierdzona pomyślnie");
     }
 
     @Transactional(readOnly = true)

@@ -31,34 +31,36 @@ public class ReportController {
         List<MovieStatsDto> movieStats = reportService.getSalesStats();
         List<DailyStatsDto> dailyStats = reportService.getDailyStats();
 
-        response.setContentType("text/csv");
+        response.setContentType("text/csv; charset=UTF-8");
         response.setHeader("Content-Disposition", "attachment; filename=\"raport_sprzedazy.csv\"");
 
         try (PrintWriter writer = response.getWriter()) {
+            writer.write('\uFEFF');
+
             writer.println("--- RAPORT WG FILMOW ---");
-            writer.println("Tytul Filmu,Sprzedane Bilety,Przychod");
+            writer.println("Tytul Filmu;Sprzedane Bilety;Przychod");
             for (MovieStatsDto stat : movieStats) {
-                writer.printf("%s,%d,%s%n",
+                writer.printf("%s;%d;%s%n",
                         escapeCsv(stat.movieTitle()),
                         stat.ticketsSold(),
-                        stat.totalRevenue());
+                        stat.totalRevenue().toString().replace('.', ','));
             }
 
             writer.println();
             writer.println("--- RAPORT DZIENNY ---");
-            writer.println("Data,Sprzedane Bilety,Przychod");
+            writer.println("Data;Sprzedane Bilety;Przychod");
             for (DailyStatsDto stat : dailyStats) {
-                writer.printf("%s,%d,%s%n",
+                writer.printf("%s;%d;%s%n",
                         stat.date(),
                         stat.ticketsSold(),
-                        stat.totalRevenue());
+                        stat.totalRevenue().toString().replace('.', ','));
             }
         }
     }
 
     private String escapeCsv(String data) {
         if (data == null) return "";
-        if (data.contains(",") || data.contains("\"") || data.contains("\n")) {
+        if (data.contains(";") || data.contains("\"") || data.contains("\n")) {
             return "\"" + data.replace("\"", "\"\"") + "\"";
         }
         return data;

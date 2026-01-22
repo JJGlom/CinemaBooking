@@ -1,6 +1,7 @@
 package com.cinema.booking.service;
 
 import com.cinema.booking.model.Movie;
+import com.cinema.booking.repository.ActorRepository;
 import com.cinema.booking.repository.MovieRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -21,6 +22,9 @@ class MovieServiceTest {
     @Mock
     private MovieRepository movieRepository;
 
+    @Mock
+    private ActorRepository actorRepository;
+
     @InjectMocks
     private MovieService movieService;
 
@@ -39,7 +43,7 @@ class MovieServiceTest {
         Movie movie = Movie.builder().title("New").build();
         when(movieRepository.save(movie)).thenReturn(movie);
 
-        Movie result = movieService.addMovie(movie, null);
+        Movie result = movieService.addMovie(movie, null, null);
 
         assertThat(result).isNotNull();
         verify(movieRepository).save(movie);

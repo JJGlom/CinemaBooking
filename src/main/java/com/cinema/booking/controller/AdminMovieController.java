@@ -1,6 +1,7 @@
 package com.cinema.booking.controller;
 
 import com.cinema.booking.dto.MovieDto;
+import com.cinema.booking.model.Actor;
 import com.cinema.booking.model.Movie;
 import com.cinema.booking.service.MovieService;
 import jakarta.validation.Valid;
@@ -11,6 +12,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/admin/movies")
@@ -34,6 +36,11 @@ public class AdminMovieController {
     @GetMapping("/edit/{id}")
     public String showEditForm(@PathVariable Long id, Model model) {
         Movie movie = movieService.getMovieById(id);
+
+        String castMembers = movie.getActors().stream()
+                .map(Actor::getName)
+                .collect(Collectors.joining(", "));
+
         MovieDto dto = MovieDto.builder()
                 .id(movie.getId())
                 .title(movie.getTitle())
@@ -44,7 +51,7 @@ public class AdminMovieController {
                 .ageRestriction(movie.getAgeRestriction())
                 .posterUrl(movie.getPosterUrl())
                 .trailerUrl(movie.getTrailerUrl())
-                .castMembers(movie.getCastMembers())
+                .castMembers(castMembers)
                 .build();
 
         model.addAttribute("movie", dto);
@@ -58,6 +65,22 @@ public class AdminMovieController {
                             @RequestParam(value = "gallery", required = false) List<MultipartFile> gallery) {
         if (result.hasErrors()) {
             return "admin/movie-form";
+        }
+
+        if (image != null && !image.isEmpty()) {
+            if (image.getContentType() == null || !image.getContentType().startsWith("image/")) {
+                result.rejectValue("posterUrl", "error.movie", "Plik plakatu musi być obrazem (JPG, PNG)");
+                return "admin/movie-form";
+            }
+        }
+
+        if (gallery != null && !gallery.isEmpty()) {
+            for (MultipartFile file : gallery) {
+                if (!file.isEmpty() && (file.getContentType() == null || !file.getContentType().startsWith("image/"))) {
+                    result.rejectValue("posterUrl", "error.movie", "Wszystkie pliki w galerii muszą być obrazami");
+                    return "admin/movie-form";
+                }
+            }
         }
 
         String posterUrl = movieDto.posterUrl();
@@ -74,13 +97,12 @@ public class AdminMovieController {
                 .ageRestriction(movieDto.ageRestriction())
                 .posterUrl(posterUrl)
                 .trailerUrl(movieDto.trailerUrl())
-                .castMembers(movieDto.castMembers())
                 .build();
 
         if (movieDto.id() != null) {
-            movieService.updateMovie(movieDto.id(), details, gallery);
+            movieService.updateMovie(movieDto.id(), details, movieDto.castMembers(), gallery);
         } else {
-            movieService.addMovie(details, gallery);
+            movieService.addMovie(details, movieDto.castMembers(), gallery);
         }
 
         return "redirect:/admin/movies";

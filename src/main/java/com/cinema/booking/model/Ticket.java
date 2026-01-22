@@ -8,7 +8,9 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
-@Table(name = "tickets")
+@Table(name = "tickets", uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"screening_id", "seat_id"})
+})
 @Getter
 @Setter
 @NoArgsConstructor
@@ -22,6 +24,9 @@ public class Ticket {
 
     @Column(nullable = false, unique = true)
     private String ticketIdentifier;
+
+    @Column(name = "order_id")
+    private String orderId;
 
     @Enumerated(EnumType.STRING)
     private TicketType type;

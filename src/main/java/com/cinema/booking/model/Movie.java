@@ -33,7 +33,14 @@ public class Movie {
     @NotBlank(message = "Reżyser jest wymagany")
     private String director;
 
-    private String castMembers;
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @JoinTable(
+            name = "movie_actors",
+            joinColumns = @JoinColumn(name = "movie_id"),
+            inverseJoinColumns = @JoinColumn(name = "actor_id")
+    )
+    @Builder.Default
+    private List<Actor> actors = new ArrayList<>();
 
     @Min(value = 0, message = "Czas trwania musi być dodatni")
     private Integer durationMinutes;
