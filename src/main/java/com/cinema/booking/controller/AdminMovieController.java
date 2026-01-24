@@ -52,6 +52,7 @@ public class AdminMovieController {
                 .posterUrl(movie.getPosterUrl())
                 .trailerUrl(movie.getTrailerUrl())
                 .castMembers(castMembers)
+                .images(movie.getImages())
                 .build();
 
         model.addAttribute("movie", dto);
@@ -62,7 +63,8 @@ public class AdminMovieController {
     public String saveMovie(@Valid @ModelAttribute("movie") MovieDto movieDto,
                             BindingResult result,
                             @RequestParam(value = "image", required = false) MultipartFile image,
-                            @RequestParam(value = "gallery", required = false) List<MultipartFile> gallery) {
+                            @RequestParam(value = "gallery", required = false) List<MultipartFile> gallery,
+                            @RequestParam(value = "deleteImageIds", required = false) List<Long> deleteImageIds) {
         if (result.hasErrors()) {
             return "admin/movie-form";
         }
@@ -100,7 +102,7 @@ public class AdminMovieController {
                 .build();
 
         if (movieDto.id() != null) {
-            movieService.updateMovie(movieDto.id(), details, movieDto.castMembers(), gallery);
+            movieService.updateMovie(movieDto.id(), details, movieDto.castMembers(), gallery, deleteImageIds);
         } else {
             movieService.addMovie(details, movieDto.castMembers(), gallery);
         }

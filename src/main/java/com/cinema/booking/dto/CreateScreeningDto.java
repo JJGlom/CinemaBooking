@@ -5,13 +5,13 @@ import jakarta.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
 public record CreateScreeningDto(
-        @NotNull(message = "Movie ID is required")
+        @NotNull(message = "Musisz wybrać film")
         Long movieId,
 
-        @NotNull(message = "Room ID is required")
+        @NotNull(message = "Musisz wybrać salę")
         Long roomId,
 
-        @NotNull(message = "Start time is required")
-        @Future(message = "Screening must be in the future")
+        @NotNull(message = "Data i godzina rozpoczęcia są wymagane")
+        @Future(message = "Seans musi odbyć się w przyszłości")
         LocalDateTime startTime
 ) {}

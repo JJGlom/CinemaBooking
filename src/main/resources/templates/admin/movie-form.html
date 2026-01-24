@@ -70,6 +70,24 @@
                                 </div>
                             </div>
 
+                            <div class="mb-3" th:if="${movie.images != null and !movie.images.empty}">
+                                <label class="form-label text-info">Obecna Galeria (Zaznacz, aby usunąć)</label>
+                                <div class="d-flex flex-wrap gap-3 p-3 bg-dark border border-secondary rounded">
+                                    <div th:each="img : ${movie.images}" class="text-center position-relative">
+                                        <img th:src="${img.imageUrl}" style="height: 100px; object-fit: cover;" class="border border-secondary rounded">
+                                        <div class="form-check mt-2 d-flex justify-content-center">
+                                            <input class="form-check-input bg-dark border-danger" type="checkbox"
+                                                   name="deleteImageIds"
+                                                   th:value="${img.id}"
+                                                   id="del-${img.id}">
+                                            <label class="form-check-label text-danger ms-2 small fw-bold" th:for="'del-' + ${img.id}">
+                                                USUŃ
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
                             <div class="mb-3">
                                 <label class="form-label text-muted" th:text="${movie.id} ? 'Dodaj kolejne zdjęcia do galerii' : 'Galeria zdjęć (wiele plików)'">Galeria</label>
                                 <input type="file" name="gallery" class="form-control bg-dark text-white border-secondary" multiple accept="image/*">

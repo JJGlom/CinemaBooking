@@ -3,6 +3,7 @@ package com.cinema.booking.service;
 import com.cinema.booking.exception.ResourceNotFoundException;
 import com.cinema.booking.model.Actor;
 import com.cinema.booking.model.Movie;
+import com.cinema.booking.model.MovieImage;
 import com.cinema.booking.repository.ActorRepository;
 import com.cinema.booking.repository.MovieRepository;
 import org.junit.jupiter.api.Test;
@@ -21,10 +22,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -146,7 +144,7 @@ class MovieServiceTest {
         when(movieRepository.findById(id)).thenReturn(Optional.of(existingMovie));
         when(movieRepository.save(existingMovie)).thenReturn(existingMovie);
 
-        Movie result = movieService.updateMovie(id, movieDetails, "", null);
+        Movie result = movieService.updateMovie(id, movieDetails, "", null, null);
 
         assertThat(result.getTitle()).isEqualTo("New");
         assertThat(result.getPosterUrl()).isEqualTo("new.jpg");
@@ -171,7 +169,7 @@ class MovieServiceTest {
         when(movieRepository.findById(id)).thenReturn(Optional.of(existingMovie));
         when(movieRepository.save(existingMovie)).thenReturn(existingMovie);
 
-        Movie result = movieService.updateMovie(id, movieDetails, "", null);
+        Movie result = movieService.updateMovie(id, movieDetails, "", null, null);
 
         assertThat(result.getTitle()).isEqualTo("New");
         assertThat(result.getPosterUrl()).isEqualTo("keep_me.jpg");
@@ -187,7 +185,7 @@ class MovieServiceTest {
         when(movieRepository.findById(id)).thenReturn(Optional.of(existingMovie));
         when(movieRepository.save(existingMovie)).thenReturn(existingMovie);
 
-        movieService.updateMovie(id, movieDetails, null, null);
+        movieService.updateMovie(id, movieDetails, null, null, null);
 
         assertThat(existingMovie.getActors()).isEmpty();
     }
@@ -304,5 +302,50 @@ class MovieServiceTest {
         MockMultipartFile file = new MockMultipartFile("file", "image.png", "image/png", "content".getBytes());
         String result = movieService.storeFile(file);
         assertThat(result).endsWith(".png");
+    }
+
+    @Test
+    void shouldDeleteSelectedGalleryImages() {
+        Long id = 1L;
+        Movie movie = Movie.builder().id(id).title("Test").build();
+        MovieImage img1 = MovieImage.builder().id(10L).imageUrl("/uploads/delete_me.jpg").movie(movie).build();
+        MovieImage img2 = MovieImage.builder().id(20L).imageUrl("/uploads/keep_me.jpg").movie(movie).build();
+        movie.getImages().add(img1);
+        movie.getImages().add(img2);
+
+        when(movieRepository.findById(id)).thenReturn(Optional.of(movie));
+        when(movieRepository.save(movie)).thenReturn(movie);
+
+        movieService.updateMovie(id, movie, null, null, List.of(10L));
+
+        assertThat(movie.getImages()).hasSize(1);
+        assertThat(movie.getImages().get(0).getId()).isEqualTo(20L);
+    }
+
+    @Test
+    void shouldLogWarningWhenFileDeletionFails() throws IOException {
+        Long id = 1L;
+        Movie movie = Movie.builder().id(id).title("Test").build();
+        String failingPath = "/uploads/fail_delete.jpg";
+        MovieImage img = MovieImage.builder().id(10L).imageUrl(failingPath).movie(movie).build();
+        movie.getImages().add(img);
+
+        when(movieRepository.findById(id)).thenReturn(Optional.of(movie));
+        when(movieRepository.save(movie)).thenReturn(movie);
+
+        Path path = Paths.get("." + failingPath);
+        if (!Files.exists(path)) {
+            Files.createDirectories(path);
+        }
+        Path blocker = path.resolve("blocker");
+        Files.createFile(blocker);
+
+        try {
+            movieService.updateMovie(id, movie, null, null, List.of(10L));
+            assertThat(movie.getImages()).isEmpty();
+        } finally {
+            Files.deleteIfExists(blocker);
+            Files.deleteIfExists(path);
+        }
     }
 }

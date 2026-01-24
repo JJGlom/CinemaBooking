@@ -40,8 +40,10 @@
             </div>
         </div>
 
-        <div class="alert alert-dark border-info text-info" th:if="${screenings.empty}">
-            BRAK MISJI W TYM DNIU.
+        <div class="alert text-center shadow-lg"
+             style="background-color: #1f2833; border: 1px solid #66fcf1; color: #66fcf1;"
+             th:if="${screenings.empty}">
+            <h4 class="mb-0 fw-bold" style="letter-spacing: 2px;">BRAK MISJI W TYM DNIU.</h4>
         </div>
 
         <div class="row row-cols-1 row-cols-md-3 g-4" th:unless="${screenings.empty}">

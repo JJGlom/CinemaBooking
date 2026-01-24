@@ -91,7 +91,7 @@ class AdminMovieControllerTest {
                         .with(csrf()))
                 .andExpect(status().is3xxRedirection());
 
-        verify(movieService).updateMovie(eq(1L), any(), any(), any());
+        verify(movieService).updateMovie(eq(1L), any(), any(), any(), any());
     }
 
     @Test

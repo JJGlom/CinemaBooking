@@ -63,7 +63,7 @@ public class MovieService {
     }
 
     @Transactional
-    public Movie updateMovie(Long id, Movie movieDetails, String castMembersString, List<MultipartFile> galleryFiles) {
+    public Movie updateMovie(Long id, Movie movieDetails, String castMembersString, List<MultipartFile> galleryFiles, List<Long> deleteImageIds) {
         log.info("Aktualizacja filmu o id: {}", id);
         Movie movie = getMovieById(id);
 
@@ -77,6 +77,22 @@ public class MovieService {
 
         if (movieDetails.getPosterUrl() != null) {
             movie.setPosterUrl(movieDetails.getPosterUrl());
+        }
+
+        if (deleteImageIds != null && !deleteImageIds.isEmpty()) {
+            List<MovieImage> imagesToRemove = movie.getImages().stream()
+                    .filter(img -> deleteImageIds.contains(img.getId()))
+                    .collect(Collectors.toList());
+
+            for (MovieImage img : imagesToRemove) {
+                try {
+                    Path filePath = Paths.get("." + img.getImageUrl());
+                    Files.deleteIfExists(filePath);
+                } catch (IOException e) {
+                    log.warn("Nie udało się usunąć pliku: {}", img.getImageUrl());
+                }
+                movie.getImages().remove(img);
+            }
         }
 
         processActors(movie, castMembersString);

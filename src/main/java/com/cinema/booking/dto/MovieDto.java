@@ -1,9 +1,11 @@
 package com.cinema.booking.dto;
 
+import com.cinema.booking.model.MovieImage;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Builder;
+import java.util.List;
 
 @Builder
 public record MovieDto(
@@ -29,5 +31,6 @@ public record MovieDto(
 
         String posterUrl,
         String trailerUrl,
-        String castMembers
+        String castMembers,
+        List<MovieImage> images
 ) {}

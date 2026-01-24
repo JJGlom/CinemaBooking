@@ -93,7 +93,7 @@ public class ScreeningService {
 
         if (overlap) {
             log.warn("Konflikt harmonogramu w sali id: {}", roomId);
-            throw new IllegalArgumentException("Room is already booked for this time interval");
+            throw new IllegalArgumentException("Sala jest już zarezerwowana w tym przedziale czasowym");
         }
     }
 
