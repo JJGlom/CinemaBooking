@@ -1,13 +1,16 @@
 package com.cinema.booking.controller;
 
+import com.cinema.booking.config.SecurityConfig;
 import com.cinema.booking.dto.MovieDto;
 import com.cinema.booking.model.Movie;
+import com.cinema.booking.service.CustomUserDetailsService;
 import com.cinema.booking.service.MovieService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -26,6 +29,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(MovieController.class)
+@Import(SecurityConfig.class)
 class MovieControllerTest {
 
     @Autowired
@@ -33,6 +37,9 @@ class MovieControllerTest {
 
     @MockBean
     private MovieService movieService;
+
+    @MockBean
+    private CustomUserDetailsService userDetailsService;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -61,6 +68,18 @@ class MovieControllerTest {
         mockMvc.perform(get("/api/v1/movies"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content").isEmpty());
+    }
+
+    @Test
+    @WithMockUser
+    void shouldGetMovieById() throws Exception {
+        Long id = 1L;
+        Movie movie = Movie.builder().id(id).title("Details").genre("Drama").build();
+        when(movieService.getMovieById(id)).thenReturn(movie);
+
+        mockMvc.perform(get("/api/v1/movies/{id}", id))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.title").value("Details"));
     }
 
     @Test

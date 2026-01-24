@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import java.net.MalformedURLException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -34,7 +33,7 @@ public class FileController {
             } else {
                 return ResponseEntity.notFound().build();
             }
-        } catch (MalformedURLException e) {
+        } catch (Exception e) {
             return ResponseEntity.badRequest().build();
         }
     }
